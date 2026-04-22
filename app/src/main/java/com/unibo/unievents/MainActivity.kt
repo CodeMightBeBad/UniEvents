@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.rememberNavController
-import com.unibo.unievents.ui.NavGraph
+import com.unibo.unievents.ui.screens.registration.RegistrationScreen
+import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
 import com.unibo.unievents.ui.theme.UniEventsTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +17,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             UniEventsTheme {
                 val navController = rememberNavController()
-                NavGraph(navController)
+                val viewModel = remember { RegistrationViewModel() }
+
+                RegistrationScreen(
+                    viewModel = viewModel,
+                    navController = navController,
+                    onRegistrationSuccess = {
+                        /*TODO*/
+                    }
+                )
             }
         }
     }
