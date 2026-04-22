@@ -18,7 +18,7 @@ fun NavGraph(navController: NavHostController) {
         startDestination = NavigationRoute.Login
     ) {
         composable<NavigationRoute.Login> {
-            LoginScreen(navController)
+            // LoginScreen(navController)
         }
     }
 }

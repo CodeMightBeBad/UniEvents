@@ -11,6 +11,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -84,7 +86,7 @@ fun RegistrationScreen(
             // Campo Numero Matricola
             OutlinedTextField(
                 leadingIcon = {
-                    Icon(Icons.Filled.AccountBox, "User")
+                    Icon(Icons.Filled.AccountBox, "matricola")
                 },
                 value = state.matricola,
                 onValueChange = { viewModel.handleAction(RegistrationActions.UpdateMatricola(it)) },
@@ -116,7 +118,7 @@ fun RegistrationScreen(
             // Campo Email Istituzionale
             OutlinedTextField(
                 leadingIcon = {
-                    Icon(Icons.Filled.MailOutline, "User")
+                    Icon(Icons.Filled.MailOutline, "email")
                 },
                 value = state.email,
                 onValueChange = { viewModel.handleAction(RegistrationActions.UpdateEmail(it)) },
@@ -150,7 +152,7 @@ fun RegistrationScreen(
 
             OutlinedTextField(
                 leadingIcon = {
-                    Icon(Icons.Filled.Lock, "User")
+                    Icon(Icons.Filled.Lock, "password")
                 },
                 value = state.password,
                 onValueChange = { viewModel.handleAction(RegistrationActions.UpdatePassword(it)) },
@@ -206,10 +208,12 @@ fun RegistrationScreen(
                     }
                 },
                 trailingIcon = {
-                    TextButton(
-                        onClick = { passwordVisible = !passwordVisible },
-                        content = { Text(if (passwordVisible) "Nascondi" else "Mostra", fontSize = 12.sp) }
-                    )
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = if (passwordVisible) "Nascondi" else "Mostra"
+                        )
+                    }
                 }
             )
 
@@ -220,7 +224,7 @@ fun RegistrationScreen(
 
             OutlinedTextField(
                 leadingIcon = {
-                    Icon(Icons.Filled.CheckCircle, "User")
+                    Icon(Icons.Filled.CheckCircle, "Conferma_password")
                 },
                 value = state.confirmPassword,
                 onValueChange = { viewModel.handleAction(RegistrationActions.UpdateConfirmPassword(it)) },
@@ -241,10 +245,12 @@ fun RegistrationScreen(
                     }
                 },
                 trailingIcon = {
-                    TextButton(
-                        onClick = { confirmPasswordVisible = !confirmPasswordVisible },
-                        content = { Text(if (confirmPasswordVisible) "Nascondi" else "Mostra", fontSize = 12.sp) }
-                    )
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(
+                            imageVector = if (confirmPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = if (confirmPasswordVisible) "Nascondi" else "Mostra"
+                        )
+                    }
                 }
             )
 
