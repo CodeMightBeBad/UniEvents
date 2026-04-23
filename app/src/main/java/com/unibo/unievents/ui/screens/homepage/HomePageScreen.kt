@@ -35,7 +35,7 @@ fun HomePageScreen(
             TopBar(navController, "homepage")
         },
         bottomBar = {
-            BottomBar()
+            BottomBar(navController)
         },
         floatingActionButton = {
             // PULSANTE + IN BASSO A DESTRA

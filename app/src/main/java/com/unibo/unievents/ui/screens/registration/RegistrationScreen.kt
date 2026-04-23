@@ -6,8 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +40,11 @@ fun RegistrationScreen(
                 .padding(24.dp)
         ) {
             // Username text field
+
             OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Person, "User")
+                },
                 label = { Text("Username") },
                 value = state.username,
                 onValueChange = actions.updateUsername,
@@ -50,6 +53,9 @@ fun RegistrationScreen(
 
             // Badge number text field
             OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.AccountBox, "Matricola")
+                },
                 label = { Text("Badge number") },
                 value = state.badgeNumber,
                 onValueChange = actions.updateBadgeNumber,
@@ -59,6 +65,9 @@ fun RegistrationScreen(
 
             // Email field
             OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.MailOutline, "email")
+                },
                 label = { Text("Email") },
                 value = state.email,
                 onValueChange = actions.updateEmail,
@@ -71,6 +80,9 @@ fun RegistrationScreen(
 
             // Password field
             OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Lock, "password")
+                },
                 label = { Text("Password") },
                 value = state.password,
                 onValueChange = actions.updatePassword,
@@ -90,6 +102,9 @@ fun RegistrationScreen(
 
             // Password confirm field
             OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.CheckCircle, "Conferma")
+                },
                 label = { Text("Confirm password") },
                 value = state.passwordConfirm,
                 onValueChange = actions.updatePasswordConfirm,
