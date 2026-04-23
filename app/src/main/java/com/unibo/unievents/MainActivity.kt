@@ -4,10 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.unibo.unievents.ui.screens.creaEvento.CreaEventoScreen
-import com.unibo.unievents.ui.screens.creaEvento.CreaEventoViewModel
-import com.unibo.unievents.ui.screens.mappa.MappaScreen
+import androidx.navigation.compose.rememberNavController
+import com.unibo.unievents.ui.NavGraph
 import com.unibo.unievents.ui.theme.UniEventsTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,10 +14,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UniEventsTheme{
-                val viewModel: CreaEventoViewModel = viewModel()
-                CreaEventoScreen (viewModel, onEventCreated = {}, onCancel = {} )
+                val navController = rememberNavController()
+                NavGraph(navController)
             }
-
         }
     }
 }
