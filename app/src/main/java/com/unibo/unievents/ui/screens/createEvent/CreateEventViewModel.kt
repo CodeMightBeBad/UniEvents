@@ -1,12 +1,6 @@
-package com.unibo.unievents.ui.screens.creaEvento
+package com.unibo.unievents.ui.screens.createEvent
 
 import android.net.Uri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 data class CreateEventUiState(
     val title: String = "",
@@ -23,13 +17,13 @@ data class CreateEventUiState(
     val isFormValid: Boolean = false,
     val showImageSourceDialog: Boolean = false
 )
-
+/*
 sealed class CreateEventResult {
     object Success : CreateEventResult()
     data class Error(val message: String) : CreateEventResult()
 }
 
-class CreaEventoViewModel : ViewModel() {
+class CreateEventViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateEventUiState())
     val uiState: StateFlow<CreateEventUiState> = _uiState.asStateFlow()
@@ -207,3 +201,4 @@ class CreaEventoViewModel : ViewModel() {
         _uiState.value = CreateEventUiState()
     }
 }
+*/

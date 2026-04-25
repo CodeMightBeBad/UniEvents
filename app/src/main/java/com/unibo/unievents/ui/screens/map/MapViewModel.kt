@@ -1,4 +1,4 @@
-package com.unibo.unievents.ui.screens.mappa
+package com.unibo.unievents.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.osmdroid.util.GeoPoint
 
 data class EventLocation(
     val id: String,
@@ -22,19 +21,18 @@ data class EventLocation(
     val description: String = ""
 )
 
-data class MapsUiState(
+data class MapUiState(
     val events: List<EventLocation> = emptyList(),
     val selectedEvent: EventLocation? = null,
-    val userLocation: GeoPoint? = null,
     val isLocationPermissionGranted: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
-class MapsViewModel : ViewModel() {
+class MapViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(MapsUiState())
-    val uiState: StateFlow<MapsUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(MapUiState())
+    val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
 
     init {
         loadEvents()
@@ -92,12 +90,6 @@ class MapsViewModel : ViewModel() {
                 isLoading = false
             )
         }
-    }
-
-    fun updateUserLocation(latitude: Double, longitude: Double) {
-        _uiState.value = _uiState.value.copy(
-            userLocation = GeoPoint(latitude, longitude)
-        )
     }
 
     fun selectEvent(event: EventLocation) {

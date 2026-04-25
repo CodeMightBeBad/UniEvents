@@ -1,5 +1,223 @@
-package com.unibo.unievents.ui.screens.creaEvento
+package com.unibo.unievents.ui.screens.createEvent
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.navigation.NavHostController
+import com.unibo.unievents.ui.composables.TopBar
+
+@Composable
+fun CreateEventScreen(
+    navController: NavHostController
+) {
+    Scaffold(
+        topBar = {
+            TopBar(navController, "Crea un Evento")
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Text(
+                    text = "Il tuo evento verrà revisionato da un amministratore prima di essere pubblicato",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            Text(
+                text = "Immagini Evento",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            OutlinedButton(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("AGGIUNGI FOTO")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Title, "titolo")
+                },
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Inserisci il titolo*") },
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Abc, "descrizione")
+                },
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Descrivi il tuo evento") },
+                minLines = 4,
+                maxLines = 6,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        leadingIcon = {
+                            Icon(Icons.Filled.DateRange, "data")
+                        },
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("gg/mm/aaaa") },
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        leadingIcon = {
+                            Icon(Icons.Filled.AccessTime, "ora")
+                        },
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("--:--") },
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            }
+
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.AccountBalance, "luogo")
+                },
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Nome del luogo*") },
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Place, "indirizzo")
+                },
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Indirizzo*") },
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Business, "città")
+                },
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Città") },
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(Icons.Filled.Person, "persone")
+                },
+                value = "50",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Numero massimo partecipanti*") },
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = { },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("RICHIEDI PUBBLICAZIONE")
+                }
+
+                OutlinedButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("ANNULLA")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 import android.Manifest
 import android.net.Uri
 import android.widget.Toast
@@ -491,4 +709,4 @@ fun CreaEventoScreen(
         }
     }
 }
-
+*/
