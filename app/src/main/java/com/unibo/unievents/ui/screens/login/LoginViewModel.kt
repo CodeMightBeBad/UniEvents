@@ -15,7 +15,7 @@ data class LoginUiState(
     val isLoginEnabled: Boolean = false,
     val errorMessage: String? = null
 )
-
+/*
 sealed class LoginResult {
     object Success : LoginResult()
     data class Error(val message: String) : LoginResult()
@@ -107,3 +107,4 @@ class LoginViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }
+*/
