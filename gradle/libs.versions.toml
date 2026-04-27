@@ -18,8 +18,10 @@ composeBom = "2024.09.00"
 materialIconsExtended = "1.6.8"
 navigationCompose = "2.9.7"
 osmdroidAndroid = "6.1.20"
+osmdroidAndroidVersion = "6.1.17"
 playServicesLocation = "21.3.0"
 playServicesLocationVersion = "21.0.1"
+playServicesMaps = "19.0.0"
 preference = "1.2.1"
 
 [libraries]
@@ -30,6 +32,7 @@ androidx-lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-commo
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleCommonJava8" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -49,8 +52,10 @@ kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-cor
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
+osmdroid-android-v6117 = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroidVersion" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-location-v2101 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

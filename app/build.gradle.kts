@@ -55,12 +55,15 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
     // OSM
-    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.0")
-    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.play.services.maps)
 
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.datetime)
+
+    implementation(libs.osmdroid.android.v6117)
+    implementation(libs.androidx.preference.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
