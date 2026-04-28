@@ -75,4 +75,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.koin.androidx.compose)
+    implementation(platform(libs.bom))
+    implementation(libs.postgrest.kt)
+    implementation(libs.ktor.client.android)
+    implementation(libs.auth.kt)
+    implementation(libs.ktor.client.okhttp)
 }
