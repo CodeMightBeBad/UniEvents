@@ -1,5 +1,7 @@
 package com.unibo.unievents.ui.screens.login
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,9 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.TopBar
 import androidx.compose.material.icons.filled.*
+import com.unibo.unievents.ui.NavigationRoute
 
 @Composable
 fun LoginScreen(
+    state: LoginState,
+    actions: LoginActions,
     navController: NavHostController
 ) {
     Scaffold(
@@ -71,9 +76,9 @@ fun LoginScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.Badge, "matricola")
                         },
-                        value = "",
-                        onValueChange = { },
-                        placeholder = { Text("Numero matricola") },
+                        value = state.email,
+                        onValueChange = actions.updateEmail,
+                        placeholder = { Text("Email") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
@@ -85,8 +90,8 @@ fun LoginScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.Lock, "password")
                         },
-                        value = "",
-                        onValueChange = { },
+                        value = state.password,
+                        onValueChange = actions.updatePassword,
                         placeholder = { Text("Password") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -97,7 +102,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = { },
+                        onClick = actions.confirm,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -115,7 +120,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedButton(
-                        onClick = { },
+                        onClick = { navController.navigate(NavigationRoute.Register) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     ) {

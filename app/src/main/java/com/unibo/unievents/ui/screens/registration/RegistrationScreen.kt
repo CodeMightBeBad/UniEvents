@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
@@ -113,7 +114,13 @@ fun RegistrationScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Button(onClick = {}) {
+            Button(
+                onClick = {
+                    actions.confirm()
+                    navController.navigate(NavigationRoute.Splash)
+                },
+                enabled = !state.loading
+            ) {
                 Text("Register")
             }
         }
