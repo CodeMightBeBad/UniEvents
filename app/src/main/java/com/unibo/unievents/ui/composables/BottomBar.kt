@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.unibo.unievents.ui.NavigationRoute
 
 @Composable
 fun BottomBar(navController: NavHostController) {
@@ -39,7 +40,7 @@ fun BottomBar(navController: NavHostController) {
                     Icon(Icons.Filled.DateRange, "Calendar")
                 }
 
-                IconButton(onClick = { /* TODO */ }) {
+                IconButton(onClick = { navController.navigate(NavigationRoute.Profile) }) {
                     Icon(Icons.Filled.Person, "User")
                 }
             }
