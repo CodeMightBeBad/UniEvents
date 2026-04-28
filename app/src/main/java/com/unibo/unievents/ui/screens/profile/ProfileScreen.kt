@@ -23,10 +23,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
 fun ProfileScreen(
+    state: ProfileState,
+    actions: ProfileActions,
     navController: NavHostController
 ) {
     var isEditing by remember { mutableStateOf(false) }
@@ -224,6 +227,14 @@ fun ProfileScreen(
                     Text("Modifica Profilo")
                 }
 
+                Button(
+                    onClick = {
+                        actions.logout()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Log out")
+                }
             } else {
 
                 Card(modifier = Modifier.fillMaxWidth()) {

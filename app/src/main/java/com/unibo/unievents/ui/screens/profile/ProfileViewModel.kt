@@ -1,6 +1,11 @@
 package com.unibo.unievents.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.unibo.unievents.data.repositories.AuthRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 data class ProfileState(
     val displayName: String = "",
@@ -25,9 +30,19 @@ data class ProfileActions(
     val onChangePhoto: () -> Unit = {},
     val onUpdateNome: (String) -> Unit = {},
     val onUpdateOldPassword: (String) -> Unit = {},
-    val onUpdateNewPassword: (String) -> Unit = {}
+    val onUpdateNewPassword: (String) -> Unit = {},
+    val logout: () -> Unit
 )
 
-class ProfileViewModel : ViewModel() {
+class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
+    private val _state = MutableStateFlow(ProfileState())
+    val state = _state.asStateFlow()
 
+    val actions = ProfileActions(
+        logout = {
+            viewModelScope.launch {
+                repository.logout()
+            }
+        }
+    )
 }
