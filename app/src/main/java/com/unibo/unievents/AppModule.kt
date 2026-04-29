@@ -2,7 +2,6 @@ package com.unibo.unievents
 
 import com.unibo.unievents.data.repositories.AuthRepository
 import com.unibo.unievents.data.repositories.EventRepository
-import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
