@@ -1,5 +1,7 @@
 package com.unibo.unievents.data
 
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -7,8 +9,8 @@ import kotlinx.serialization.Serializable
 data class Event(
     @SerialName("title") val title: String,
     @SerialName("description") val description: String,
-    @SerialName("date") val date: String,
-    @SerialName("time") val time: String,
+    @SerialName("date") val date: LocalDate,
+    @SerialName("time") val time: LocalTime,
     @SerialName("address") val address: String,
     @SerialName("max_participants") val maxParticipants: Int?
 )
