@@ -1,6 +1,9 @@
 package com.unibo.unievents
 
 import com.unibo.unievents.data.repositories.AuthRepository
+import com.unibo.unievents.data.repositories.EventRepository
+import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
+import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
@@ -22,10 +25,10 @@ val AppModule = module {
         }
     }
     single { AuthRepository(get()) }
+    single { EventRepository(get()) }
 
     viewModel { RegistrationViewModel(get()) }
-
     viewModel { LoginViewModel(get()) }
-
     viewModel { ProfileViewModel(get()) }
+    viewModel { HomePageViewModel(get()) }
 }

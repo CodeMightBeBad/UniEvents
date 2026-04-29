@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.unibo.unievents.ui.screens.homepage.HomePageScreen
+import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
 import com.unibo.unievents.ui.screens.login.LoginViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileScreen
@@ -32,6 +33,7 @@ sealed interface NavigationRoute {
     @Serializable data object Splash : NavigationRoute
     @Serializable data object Home : NavigationRoute
     @Serializable data object Profile : NavigationRoute
+    @Serializable data object AddEvent : NavigationRoute
 }
 
 @Composable
@@ -89,7 +91,10 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable<NavigationRoute.Home> {
-            HomePageScreen(navController)
+            val vm = koinViewModel<HomePageViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
+
+            HomePageScreen(state, navController)
         }
 
         composable<NavigationRoute.Profile> {
