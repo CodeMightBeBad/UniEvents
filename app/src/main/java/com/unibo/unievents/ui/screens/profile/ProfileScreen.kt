@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.NavigationRoute
+import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
@@ -36,7 +37,8 @@ fun ProfileScreen(
     var statsExpanded by remember { mutableStateOf(true) }
 
     Scaffold(
-        topBar = { TopBar(navController, if (isEditing) "Modifica Profilo" else "Il mio Profilo") }
+        topBar = { TopBar(navController, if (isEditing) "Modifica Profilo" else "Il mio Profilo") },
+        bottomBar = { BottomBar(navController)},
     ) { innerPadding ->
         Column(
             modifier = Modifier
