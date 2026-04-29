@@ -1,6 +1,7 @@
 package com.unibo.unievents.ui.screens.homepage
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -11,7 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
+import com.unibo.unievents.data.Event
+import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.BottomBar
+import com.unibo.unievents.ui.composables.EventCard
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
@@ -32,7 +36,7 @@ fun HomePageScreen(
             bottomBar = { BottomBar(navController) },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { },
+                    onClick = { navController.navigate(NavigationRoute.AddEvent) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     shape = CircleShape,
@@ -55,6 +59,9 @@ fun HomePageScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                items(state.events) {
+                    EventCard(it)
+                }
             }
         }
     }

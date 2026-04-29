@@ -12,6 +12,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.unibo.unievents.ui.screens.createEvent.CreateEventScreen
+import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageScreen
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
@@ -102,6 +104,13 @@ fun NavGraph(navController: NavHostController) {
             val state by vm.state.collectAsStateWithLifecycle()
 
             ProfileScreen(state, vm.actions, navController)
+        }
+
+        composable<NavigationRoute.AddEvent> {
+            val vm = koinViewModel<CreateEventViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
+
+            CreateEventScreen(state, vm.actions, navController)
         }
     }
 }
