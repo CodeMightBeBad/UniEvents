@@ -16,8 +16,8 @@ data class RegistrationState(
     val passwordConfirm: String = "",
 
     val showPassword: Boolean = false,
-    val showError: Boolean = false,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 data class RegistrationActions(
@@ -54,23 +54,29 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
             _state.update { it.copy(showPassword = !it.showPassword) }
         },
         confirm = {
-            if (checkValidity()) {
-                _state.update { it.copy(loading = true) }
+            if(checkValidity()) {
+                viewModelScope.launch {
+                    _state.update { it.copy(loading = true) }
 
-                try {
-                    viewModelScope.launch {
-                        repository.register(
+                    try {
+                        val result = repository.register(
                             email = state.value.email,
                             password = state.value.password,
                             badgeNumber = state.value.badgeNumber,
                             username = state.value.username
                         )
+
+                        result.onFailure { exception ->
+                            _state.update { it.copy(errorMessage = exception.message) }
+                        }
+                    } catch (_: Exception) {
+                        _state.update { it.copy(errorMessage = "Database error") }
+                    } finally {
+                        _state.update { it.copy(loading = false) }
                     }
-                } finally {
-                    _state.update { it.copy(loading = false) }
                 }
             } else {
-                _state.update { it.copy(showError = true) }
+                _state.update { it.copy(errorMessage = "Enter valid credentials") }
             }
         }
     )
