@@ -38,18 +38,36 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
             _state.update { it.copy(password = newPassword) }
         },
         confirm = {
-            viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
+            if (checkValidity()) {
+                viewModelScope.launch {
+                    _state.update { it.copy(isLoading = true) }
 
-                val result = repository.login(
-                    email = state.value.email,
-                    password = state.value.password
-                )
+                    try {
+                        val result = repository.login(
+                            email = state.value.email,
+                            password = state.value.password
+                        )
 
-                result.onFailure { exception ->
-                    _state.update { it.copy(isLoading = false, errorMessage = exception.message) }
+                        result.onFailure { exception ->
+                            _state.update { it.copy(errorMessage = exception.message) }
+                        }
+                    } catch (_: Exception) {
+
+                    } finally {
+                        _state.update { it.copy(isLoading = false) }
+                    }
                 }
+            } else {
+                _state.update { it.copy(errorMessage = "Enter valid credentials") }
             }
         }
     )
+
+    fun checkValidity(): Boolean {
+        if (state.value.email.isBlank() || state.value.password.isBlank()) return false
+        if (!state.value.email.endsWith("@studio.unibo.it")) return false
+        if (state.value.password.length < 8) return  false
+
+        return true
+    }
 }
