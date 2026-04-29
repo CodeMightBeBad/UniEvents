@@ -75,7 +75,7 @@ fun EventCard(event: Event) {
             ) {
                 Column {
                     Text(
-                        text = "Torneo di calcetto",
+                        text = event.title,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -101,7 +101,7 @@ fun EventCard(event: Event) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.Schedule, contentDescription = "Time", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "10 Marzo 2026")
+                        Text(text = event.date.toString())
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -114,7 +114,7 @@ fun EventCard(event: Event) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(text = "Descrizione 1", maxLines = 2)
+                    Text(text = event.description, maxLines = 2)
 
                     Spacer(modifier = Modifier.height(16.dp))
 
