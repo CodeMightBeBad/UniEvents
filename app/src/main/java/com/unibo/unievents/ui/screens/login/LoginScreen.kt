@@ -12,11 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.TopBar
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import com.unibo.unievents.ui.NavigationRoute
 
 @Composable
@@ -74,14 +77,15 @@ fun LoginScreen(
 
                     OutlinedTextField(
                         leadingIcon = {
-                            Icon(Icons.Filled.Badge, "matricola")
+                            Icon(Icons.Filled.Email, "matricola")
                         },
                         value = state.email,
                         onValueChange = actions.updateEmail,
-                        placeholder = { Text("Email") },
+                        label = { Text("Email") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        singleLine = true
+                        singleLine = true,
+                        isError = state.errorMessage != null
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -92,12 +96,42 @@ fun LoginScreen(
                         },
                         value = state.password,
                         onValueChange = actions.updatePassword,
-                        placeholder = { Text("Password") },
+                        label = { Text("Password") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
-                        visualTransformation = PasswordVisualTransformation()
+                        isError = state.errorMessage != null,
+                        visualTransformation = if (state.isPasswordVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = actions.togglePasswordVisibility) {
+                                Icon(
+                                    imageVector = if (state.isPasswordVisible)
+                                        Icons.Filled.VisibilityOff
+                                    else
+                                        Icons.Filled.Visibility,
+                                    contentDescription = if (state.isPasswordVisible)
+                                        "Nascondi password"
+                                    else
+                                        "Mostra password"
+                                )
+                            }
+                        }
                     )
+
+                    if (state.errorMessage != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = state.errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
 

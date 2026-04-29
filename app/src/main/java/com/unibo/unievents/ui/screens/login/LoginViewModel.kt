@@ -22,7 +22,7 @@ data class LoginState(
 data class LoginActions(
     val updateEmail: (String) -> Unit,
     val updatePassword: (String) -> Unit,
-
+    val togglePasswordVisibility: () -> Unit,
     val confirm: () -> Unit
 )
 
@@ -31,11 +31,15 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
     val state = _state.asStateFlow()
 
     val actions = LoginActions(
+
         updateEmail = { newEmail ->
-            _state.update { it.copy(email = newEmail) }
+            _state.update { it.copy(email = newEmail, errorMessage = null) }
         },
         updatePassword = { newPassword ->
-            _state.update { it.copy(password = newPassword) }
+            _state.update { it.copy(password = newPassword, errorMessage = null) }
+        },
+        togglePasswordVisibility = {
+            _state.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
         },
         confirm = {
             if (checkValidity()) {
