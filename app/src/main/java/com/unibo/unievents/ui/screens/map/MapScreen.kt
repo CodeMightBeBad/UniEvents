@@ -191,7 +191,7 @@ fun MapEventsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Divider
-            Divider(
+            HorizontalDivider(
                 color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp,
                 modifier = Modifier.padding(horizontal = 16.dp)
