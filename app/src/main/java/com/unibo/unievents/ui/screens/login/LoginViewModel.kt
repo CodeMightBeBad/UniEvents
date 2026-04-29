@@ -3,7 +3,6 @@ package com.unibo.unievents.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.repositories.AuthRepository
-import io.github.jan.supabase.auth.exception.AuthRestException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -62,7 +61,7 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
                     }
                 }
             } else {
-                _state.update { it.copy(errorMessage = "Enter valid credentials") }
+                _state.update { it.copy(errorMessage = "Email o password sbagliata") }
             }
         }
     )

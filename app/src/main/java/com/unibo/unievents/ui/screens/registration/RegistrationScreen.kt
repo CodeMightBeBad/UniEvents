@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,7 +41,6 @@ fun RegistrationScreen(
                 .padding(innerPadding)
                 .padding(24.dp)
         ) {
-            // Username text field
 
             OutlinedTextField(
                 leadingIcon = {
@@ -49,10 +49,12 @@ fun RegistrationScreen(
                 label = { Text("Username") },
                 value = state.username,
                 onValueChange = actions.updateUsername,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.usernameError != null,
+                supportingText = state.usernameError?.let { { Text(it) } }
+
             )
 
-            // Badge number text field
             OutlinedTextField(
                 leadingIcon = {
                     Icon(Icons.Filled.AccountBox, "Matricola")
@@ -61,10 +63,11 @@ fun RegistrationScreen(
                 value = state.badgeNumber,
                 onValueChange = actions.updateBadgeNumber,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.badgeNumberError != null,
+                supportingText = state.badgeNumberError?.let { { Text(it) } }
             )
 
-            // Email field
             OutlinedTextField(
                 leadingIcon = {
                     Icon(Icons.Filled.MailOutline, "email")
@@ -73,13 +76,11 @@ fun RegistrationScreen(
                 value = state.email,
                 onValueChange = actions.updateEmail,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                supportingText = {
-                    Text("Must end with @studio.unibo.it")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.emailError != null,
+                supportingText = state.emailError?.let { { Text(it) } }
             )
 
-            // Password field
             OutlinedTextField(
                 leadingIcon = {
                     Icon(Icons.Filled.Lock, "password")
@@ -88,20 +89,18 @@ fun RegistrationScreen(
                 value = state.password,
                 onValueChange = actions.updatePassword,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                supportingText = {
-                    Text("Must be at least 8 characters")
-                },
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.passwordError != null,
+                supportingText = state.passwordError?.let { { Text(it) } },
                 trailingIcon = {
                     IconButton(onClick = actions.toggleShowPassword) {
                         if (state.showPassword) Icon(Icons.Filled.VisibilityOff, "Hide password")
                         else Icon(Icons.Filled.Visibility, "Show password")
                     }
                 },
-                visualTransformation = if (state.showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                visualTransformation = if (state.showPassword) VisualTransformation.None else PasswordVisualTransformation()
             )
 
-            // Password confirm field
             OutlinedTextField(
                 leadingIcon = {
                     Icon(Icons.Filled.CheckCircle, "Conferma")
@@ -110,18 +109,30 @@ fun RegistrationScreen(
                 value = state.passwordConfirm,
                 onValueChange = actions.updatePasswordConfirm,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = if (state.showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.passwordConfirmError != null,
+                supportingText = state.passwordConfirmError?.let { { Text(it) } },
+
+                trailingIcon = {
+                    IconButton(onClick = actions.toggleShowConfirmPassword) {
+                        if (state.showConfirmPassword) Icon(Icons.Filled.VisibilityOff, "Hide password")
+                        else Icon(Icons.Filled.Visibility, "Show password")
+                    }
+                },
+                visualTransformation = if (state.showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation()
             )
 
-            Button(
-                onClick = {
-                    actions.confirm()
+            LaunchedEffect(state.registrationSuccess) {
+                if (state.registrationSuccess) {
                     navController.navigate(NavigationRoute.Splash)
-                },
+                }
+            }
+
+            Button(
+                onClick = { actions.confirm() },
                 enabled = !state.loading
             ) {
-                Text("Register")
+                Text("Registrati")
             }
         }
     }
