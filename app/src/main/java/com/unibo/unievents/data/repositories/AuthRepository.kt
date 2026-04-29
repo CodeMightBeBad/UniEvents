@@ -17,17 +17,23 @@ data class RegistrationMetadata(
 )
 
 class AuthRepository(private val supabase: SupabaseClient) {
-    suspend fun register(email: String, password: String, badgeNumber: String, username: String) {
-        supabase.auth.signUpWith(Email) {
-            this.email = email
-            this.password = password
+    suspend fun register(email: String, password: String, badgeNumber: String, username: String): Result<Unit> {
+        return try {
+            supabase.auth.signUpWith(Email) {
+                this.email = email
+                this.password = password
 
-            this.data = Json.encodeToJsonElement(
-                RegistrationMetadata(
-                    badgeNumber = badgeNumber,
-                    username = username
-                )
-            ).jsonObject
+                this.data = Json.encodeToJsonElement(
+                    RegistrationMetadata(
+                        badgeNumber = badgeNumber,
+                        username = username
+                    )
+                ).jsonObject
+            }
+
+            Result.success(Unit)
+        } catch (_: Exception) {
+            Result.failure(Exception("Error during registration"))
         }
     }
 
