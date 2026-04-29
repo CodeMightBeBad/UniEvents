@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
@@ -30,7 +28,6 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.overlay.infowindow.InfoWindow
 
 @Composable
 fun MapEventsScreen(
@@ -112,10 +109,9 @@ fun MapEventsScreen(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                AndroidView(
+               AndroidView(
                     factory = { ctx ->
                         MapView(ctx).apply {
-                            // Configurazione OSMDroid
                             Configuration.getInstance().load(
                                 ctx.applicationContext,
                                 androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx.applicationContext)
@@ -125,12 +121,11 @@ fun MapEventsScreen(
                             setMultiTouchControls(true)
                             zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
 
-                            // Centro su Bologna
-                            val bolognaCenter = GeoPoint(44.4949, 11.3426)
+                            val cesenaCenter = GeoPoint(44.143333,12.249722 )
+                            // val bolognaCenter = GeoPoint(44.4949, 11.3426)
                             controller.setZoom(13.0)
-                            controller.setCenter(bolognaCenter)
+                            controller.setCenter(cesenaCenter)
 
-                            // Aggiungi tutti i marker degli eventi
                             eventLocations.forEach { location ->
                                 val marker = Marker(this)
                                 marker.position = location.geoPoint
@@ -157,7 +152,6 @@ fun MapEventsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Bottone permessi se non concessi
             if (!hasLocationPermission) {
                 Button(
                     onClick = { permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
@@ -172,7 +166,6 @@ fun MapEventsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Testo descrittivo
             Text(
                 text = "Mappa Interattiva",
                 style = MaterialTheme.typography.titleMedium,
@@ -190,7 +183,6 @@ fun MapEventsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Divider
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp,
@@ -199,7 +191,6 @@ fun MapEventsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sezione Eventi per località
             Text(
                 text = "Eventi per località",
                 style = MaterialTheme.typography.titleLarge,
@@ -210,7 +201,6 @@ fun MapEventsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Lista eventi cliccabili
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -271,7 +261,6 @@ fun MapEventsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                // Mostra gli eventi specifici
                                 location.events.forEach { event ->
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically
@@ -311,7 +300,6 @@ fun MapEventsScreen(
     }
 }
 
-// Data class per i luoghi degli eventi
 data class EventLoc(
     val name: String,
     val address: String,
