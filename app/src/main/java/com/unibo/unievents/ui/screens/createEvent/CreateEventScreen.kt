@@ -16,6 +16,8 @@ import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
 fun CreateEventScreen(
+    state: CreateEventState,
+    actions: CreateEventActions,
     navController: NavHostController
 ) {
     Scaffold(
@@ -73,8 +75,8 @@ fun CreateEventScreen(
                 leadingIcon = {
                     Icon(Icons.Filled.Title, "titolo")
                 },
-                value = "",
-                onValueChange = {},
+                value = state.title,
+                onValueChange = actions.updateTitle,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Inserisci il titolo*") },
                 shape = RoundedCornerShape(12.dp)
@@ -84,8 +86,8 @@ fun CreateEventScreen(
                 leadingIcon = {
                     Icon(Icons.Filled.Abc, "descrizione")
                 },
-                value = "",
-                onValueChange = {},
+                value = state.description,
+                onValueChange = actions.updateDescription,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Descrivi il tuo evento") },
                 minLines = 4,
@@ -105,8 +107,8 @@ fun CreateEventScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.DateRange, "data")
                         },
-                        value = "",
-                        onValueChange = {},
+                        value = state.date,
+                        onValueChange = actions.updateDate,
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("gg/mm/aaaa") },
                         shape = RoundedCornerShape(12.dp)
@@ -121,8 +123,8 @@ fun CreateEventScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.AccessTime, "ora")
                         },
-                        value = "",
-                        onValueChange = {},
+                        value = state.time,
+                        onValueChange = actions.updateTime,
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("--:--") },
                         shape = RoundedCornerShape(12.dp)
@@ -132,21 +134,10 @@ fun CreateEventScreen(
 
             OutlinedTextField(
                 leadingIcon = {
-                    Icon(Icons.Filled.AccountBalance, "luogo")
-                },
-                value = "",
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Nome del luogo*") },
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                leadingIcon = {
                     Icon(Icons.Filled.Place, "indirizzo")
                 },
-                value = "",
-                onValueChange = {},
+                value = state.address,
+                onValueChange = actions.updateAddress,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Indirizzo*") },
                 shape = RoundedCornerShape(12.dp)
@@ -154,21 +145,10 @@ fun CreateEventScreen(
 
             OutlinedTextField(
                 leadingIcon = {
-                    Icon(Icons.Filled.Business, "città")
-                },
-                value = "",
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Città") },
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                leadingIcon = {
                     Icon(Icons.Filled.Person, "persone")
                 },
-                value = "50",
-                onValueChange = {},
+                value = state.maxParticipants.toString(),
+                onValueChange = actions.updateMaxParticipants,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Numero massimo partecipanti*") },
                 shape = RoundedCornerShape(12.dp)
@@ -181,7 +161,7 @@ fun CreateEventScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = { },
+                    onClick = actions.submit,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {

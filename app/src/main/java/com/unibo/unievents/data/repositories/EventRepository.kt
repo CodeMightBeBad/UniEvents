@@ -11,8 +11,13 @@ class EventRepository(private val supabase: SupabaseClient) {
             .decodeList<Event>()
     }
 
-    suspend fun createEvent(event: Event) {
-        supabase.from("events")
-            .insert(event)
+    suspend fun createEvent(event: Event): Result<Unit> {
+        return try {
+            supabase.from("events").insert(event)
+
+            Result.success(Unit)
+        } catch (_: Exception) {
+            Result.failure(Exception("Error during event save"))
+        }
     }
 }
