@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.Event
+import com.unibo.unievents.data.EventInsert
 import com.unibo.unievents.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,18 +23,7 @@ data class CreateEventState(
     val maxParticipants: Int? = 50,
 
     val isLoading: Boolean = false,
-    val isFormValid: Boolean = false,
-
-    val buildEvent: () -> Event = {
-        Event(
-            title = title,
-            description = description,
-            date = LocalDate.parse(date),
-            time = LocalTime.parse(time),
-            address = address,
-            maxParticipants = maxParticipants
-        )
-    }
+    val isFormValid: Boolean = false
 )
 
 data class CreateEventActions(
@@ -78,7 +68,7 @@ class CreateEventViewModel(private val repository: EventRepository) : ViewModel(
                 year()
             }
 
-            val event = Event(
+            val event = EventInsert(
                 title = state.value.title,
                 description = state.value.description,
                 date = LocalDate.parse(state.value.date, dateFormat),
