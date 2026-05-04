@@ -33,6 +33,7 @@ import org.koin.compose.koinInject
 fun TopBar(
     navController: NavHostController,
     title: String,
+    showMenu: Boolean = true,
     // isAdmin: Boolean = false
 ) {
 
@@ -49,63 +50,65 @@ fun TopBar(
             }
         },
         actions = {
-            IconButton(onClick = { menuExpanded = true }) {
-                Icon(Icons.Filled.Menu, "User menu")
-            }
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false}
-            ) {
-                // if (isAdmin) {
-                //     DropdownMenuItem(
-                //         text = { Text("Admin Dashboard") },
-                //         onClick = {
-                //             menuExpanded = false
-                //             navController.navigate(NavigationRoute.AdminBoard)
-                //         }
-                //    )
-                // }
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Icon(Icons.Filled.Dashboard, "bacheca")
-                    },
-                    text = { Text("Bacheca") },
-                    onClick = {
-                        menuExpanded = false
-                        navController.navigate(NavigationRoute.AdminBoard)
-                    }
-                )
+            if (showMenu) {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(Icons.Filled.Menu, "User menu")
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false}
+                ) {
+                    // if (isAdmin) {
+                    //     DropdownMenuItem(
+                    //         text = { Text("Admin Dashboard") },
+                    //         onClick = {
+                    //             menuExpanded = false
+                    //             navController.navigate(NavigationRoute.AdminBoard)
+                    //         }
+                    //    )
+                    // }
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(Icons.Filled.Dashboard, "bacheca")
+                        },
+                        text = { Text("Bacheca") },
+                        onClick = {
+                            menuExpanded = false
+                            navController.navigate(NavigationRoute.AdminBoard)
+                        }
+                    )
 
-                HorizontalDivider()
+                    HorizontalDivider()
 
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Icon(Icons.Filled.Search, "password")
-                    },
-                    text = { Text("Cerca") },
-                    onClick = {
-                        menuExpanded = false
-                        navController.navigate(NavigationRoute.Research)
-                    }
-                )
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(Icons.Filled.Search, "password")
+                        },
+                        text = { Text("Cerca") },
+                        onClick = {
+                            menuExpanded = false
+                            navController.navigate(NavigationRoute.Research)
+                        }
+                    )
 
-                HorizontalDivider()
+                    HorizontalDivider()
 
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Icon(Icons.AutoMirrored.Filled.Logout, "logout")
-                    },
-                    text = { Text("Logout") },
-                    onClick = {
-                        menuExpanded = false
-                        coroutineScope.launch {
-                            authRepository.logout()
-                            navController.navigate(NavigationRoute.Login) {
-                                popUpTo(0) { inclusive = true }
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(Icons.AutoMirrored.Filled.Logout, "logout")
+                        },
+                        text = { Text("Logout") },
+                        onClick = {
+                            menuExpanded = false
+                            coroutineScope.launch {
+                                authRepository.logout()
+                                navController.navigate(NavigationRoute.Login) {
+                                    popUpTo(0) { inclusive = true }
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

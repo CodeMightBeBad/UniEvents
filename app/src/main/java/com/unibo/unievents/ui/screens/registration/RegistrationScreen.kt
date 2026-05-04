@@ -32,7 +32,7 @@ fun RegistrationScreen(
     navController: NavHostController
 ) {
     Scaffold(
-        topBar = { TopBar(navController, "Register") }
+        topBar = { TopBar(navController, "Register", false) }
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -30,7 +30,7 @@ fun LoginScreen(
 ) {
     Scaffold(
         topBar = {
-            TopBar(navController, "Login")
+            TopBar(navController, "Login", false)
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
