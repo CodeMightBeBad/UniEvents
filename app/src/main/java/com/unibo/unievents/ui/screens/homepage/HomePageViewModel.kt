@@ -22,7 +22,7 @@ class HomePageViewModel(private val repository: EventRepository) : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true) }
 
-            val eventList = repository.getEvents()
+            val eventList = repository.getApprovedEvents()
             _state.update { it.copy(events = eventList) }
 
             _state.update { it.copy(loading = false) }

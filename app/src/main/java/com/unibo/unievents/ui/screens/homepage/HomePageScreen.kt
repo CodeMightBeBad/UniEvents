@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
-import com.unibo.unievents.data.Event
 import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.EventCard
