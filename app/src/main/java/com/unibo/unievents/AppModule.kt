@@ -2,6 +2,7 @@ package com.unibo.unievents
 
 import com.unibo.unievents.data.repositories.AuthRepository
 import com.unibo.unievents.data.repositories.EventRepository
+import com.unibo.unievents.ui.screens.board.BoardViewModel
 import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginViewModel
@@ -32,4 +33,5 @@ val AppModule = module {
     viewModel { ProfileViewModel(get()) }
     viewModel { HomePageViewModel(get()) }
     viewModel { CreateEventViewModel(get()) }
+    viewModel { BoardViewModel(get()) }
 }

@@ -12,6 +12,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.unibo.unievents.ui.screens.board.BoardScreen
+import com.unibo.unievents.ui.screens.board.BoardViewModel
 import com.unibo.unievents.ui.screens.createEvent.CreateEventScreen
 import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageScreen
@@ -36,6 +38,7 @@ sealed interface NavigationRoute {
     @Serializable data object Home : NavigationRoute
     @Serializable data object Profile : NavigationRoute
     @Serializable data object AddEvent : NavigationRoute
+    @Serializable data object AdminBoard : NavigationRoute
 }
 
 @Composable
@@ -111,6 +114,13 @@ fun NavGraph(navController: NavHostController) {
             val state by vm.state.collectAsStateWithLifecycle()
 
             CreateEventScreen(state, vm.actions, navController)
+        }
+
+        composable<NavigationRoute.AdminBoard> {
+            val vm = koinViewModel<BoardViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
+
+            BoardScreen(state, vm.actions, navController)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.unibo.unievents.ui.screens.board
 
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -13,14 +14,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.unibo.unievents.data.Event
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
 fun BoardScreen(
+    state: BoardState,
+    actions: BoardActions,
     navController: NavHostController
 ) {
     Scaffold(
@@ -35,35 +38,11 @@ fun BoardScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-            item {
-                Text(
-                    text = "Eventi in evidenza",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-
-            item {
+            items(state.events) {
                 EventCard(
-                    title = "Torneo di calcetto",
-                    citta = "Bologna",
-                    date = "10 Marzo 2026",
-                    location = "Laboratorio Informatica",
-                    participants = "3/60",
-                    description = "Descrizione 1"
-                )
-            }
-
-            item {
-                EventCard(
-                    title = "Festa di Carnevale Universitaria",
-                    citta = "Rimini",
-                    date = "20 Febbraio 2026",
-                    location = "Sala Feste Campus",
-                    participants = "2/150",
-                    description = "Descrizione 2"
+                    event = it,
+                    delete = { actions.removeEvent(it) },
+                    approve = { actions.approveEvent(it) }
                 )
             }
         }
@@ -72,12 +51,9 @@ fun BoardScreen(
 
 @Composable
 fun EventCard(
-    title: String,
-    date: String,
-    location: String,
-    citta: String,
-    participants: String,
-    description: String
+    event: Event,
+    delete: () -> Unit,
+    approve: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -101,26 +77,12 @@ fun EventCard(
             ) {
                 Column {
                     Text(
-                        text = title,
+                        text = event.title,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Location",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = citta
-                        )
-                    }
 
                     Spacer(modifier = Modifier.height(2.dp))
 
@@ -134,7 +96,7 @@ fun EventCard(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = location
+                            text = event.address
                         )
                     }
 
@@ -150,7 +112,7 @@ fun EventCard(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = date
+                            text = event.date.toString()
                         )
                     }
 
@@ -166,14 +128,14 @@ fun EventCard(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = participants
+                            text = event.maxParticipants.toString()
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = description,
+                        text = event.description,
                         maxLines = 2
                     )
 
@@ -184,7 +146,7 @@ fun EventCard(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         OutlinedButton(
-                            onClick = { },
+                            onClick = approve,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
@@ -201,7 +163,7 @@ fun EventCard(
                         }
 
                         Button(
-                            onClick = { },
+                            onClick = delete,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
