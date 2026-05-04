@@ -30,7 +30,6 @@ import com.unibo.unievents.ui.composables.TopBar
 @Composable
 fun ProfileScreen(
     state: ProfileState,
-    actions: ProfileActions,
     navController: NavHostController
 ) {
     var isEditing by remember { mutableStateOf(false) }
@@ -229,14 +228,6 @@ fun ProfileScreen(
                     Text("Modifica Profilo")
                 }
 
-                Button(
-                    onClick = {
-                        actions.logout()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Log out")
-                }
             } else {
 
                 Card(modifier = Modifier.fillMaxWidth()) {

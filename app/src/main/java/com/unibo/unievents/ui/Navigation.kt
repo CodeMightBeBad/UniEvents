@@ -110,7 +110,7 @@ fun NavGraph(navController: NavHostController) {
             val vm = koinViewModel<ProfileViewModel>()
             val state by vm.state.collectAsStateWithLifecycle()
 
-            ProfileScreen(state, vm.actions, navController)
+            ProfileScreen(state, navController)
         }
 
         composable<NavigationRoute.AddEvent> {
