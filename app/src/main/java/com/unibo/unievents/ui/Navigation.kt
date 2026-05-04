@@ -20,10 +20,13 @@ import com.unibo.unievents.ui.screens.homepage.HomePageScreen
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
 import com.unibo.unievents.ui.screens.login.LoginViewModel
+import com.unibo.unievents.ui.screens.profile.ProfileActions
 import com.unibo.unievents.ui.screens.profile.ProfileScreen
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationScreen
 import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
+import com.unibo.unievents.ui.screens.research.ResearchScreen
+import com.unibo.unievents.ui.screens.research.ResearchViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
@@ -39,6 +42,7 @@ sealed interface NavigationRoute {
     @Serializable data object Profile : NavigationRoute
     @Serializable data object AddEvent : NavigationRoute
     @Serializable data object AdminBoard : NavigationRoute
+    @Serializable data object Research : NavigationRoute
 }
 
 @Composable
@@ -121,6 +125,12 @@ fun NavGraph(navController: NavHostController) {
             val state by vm.state.collectAsStateWithLifecycle()
 
             BoardScreen(state, vm.actions, navController)
+        }
+
+        composable<NavigationRoute.Research> {
+            val vm = koinViewModel<ResearchViewModel>()
+
+            ResearchScreen(vm, navController)
         }
     }
 }

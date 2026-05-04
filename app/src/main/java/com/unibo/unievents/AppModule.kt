@@ -8,6 +8,7 @@ import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
+import com.unibo.unievents.ui.screens.research.ResearchViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -34,4 +35,5 @@ val AppModule = module {
     viewModel { HomePageViewModel(get()) }
     viewModel { CreateEventViewModel(get()) }
     viewModel { BoardViewModel(get()) }
+    viewModel { ResearchViewModel(get()) }
 }
