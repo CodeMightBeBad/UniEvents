@@ -1,7 +1,9 @@
 package com.unibo.unievents.data.repositories
 
+import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.postgrest
@@ -13,8 +15,7 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable
 data class RegistrationMetadata(
-    @SerialName("badge_number") val badgeNumber: String,
-    @SerialName("username") val username: String
+    @SerialName("badge_number") val badgeNumber: String
 )
 
 @Serializable
@@ -23,7 +24,7 @@ data class Admin(
 )
 
 class AuthRepository(private val supabase: SupabaseClient) {
-    suspend fun register(email: String, password: String, badgeNumber: String, username: String): Result<Unit> {
+    suspend fun register(email: String, password: String, badgeNumber: String): Result<Unit> {
         return try {
             supabase.auth.signUpWith(Email) {
                 this.email = email
@@ -31,14 +32,17 @@ class AuthRepository(private val supabase: SupabaseClient) {
 
                 this.data = Json.encodeToJsonElement(
                     RegistrationMetadata(
-                        badgeNumber = badgeNumber,
-                        username = username
+                        badgeNumber = badgeNumber
                     )
                 ).jsonObject
             }
 
             Result.success(Unit)
-        } catch (_: Exception) {
+        } catch (authEx: AuthRestException) {
+            Log.d("AuthRepository", authEx.message.toString())
+            Result.failure(Exception("Authentication error"))
+        } catch (ex: Exception) {
+            Log.d("AuthRepository", ex.message.toString())
             Result.failure(Exception("Error during registration"))
         }
     }

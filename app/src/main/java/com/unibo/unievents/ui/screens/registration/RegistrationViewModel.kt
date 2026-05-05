@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class RegistrationState(
-    val username: String = "",
     val badgeNumber: String = "",
     val email: String = "",
     val password: String = "",
@@ -30,7 +29,6 @@ data class RegistrationState(
 )
 
 data class RegistrationActions(
-    val updateUsername: (String) -> Unit,
     val updateBadgeNumber: (String) -> Unit,
     val updateEmail: (String) -> Unit,
     val updatePassword: (String) -> Unit,
@@ -45,10 +43,6 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
     val state = _state.asStateFlow()
 
     val actions = RegistrationActions(
-        updateUsername = { newUsername ->
-            val error = if (newUsername.contains(" ")) "L'username non deve contenere spazi" else null
-            _state.update { it.copy(username = newUsername, usernameError = error) }
-        },
         updateBadgeNumber = { newBadgeNumber ->
             val error = if (newBadgeNumber.isNotEmpty() && (newBadgeNumber.length != 10 || !newBadgeNumber.all { it.isDigit() }))
                 "La matricola deve essere di 10 cifre" else null
@@ -78,11 +72,6 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
         },
 
         confirm = {
-            val usernameError = when {
-                state.value.username.isEmpty() -> "L'username è obbligatorio"
-                state.value.username.contains(" ") -> "L'username non deve contenere spazi"
-                else -> null
-            }
             val badgeNumberError = when {
                 state.value.badgeNumber.isEmpty() -> "La matricola è obbligatoria"
                 state.value.badgeNumber.length != 10 || !state.value.badgeNumber.all { it.isDigit() } -> "La matricola deve essere di 10 cifre"
@@ -102,7 +91,6 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
 
             _state.update {
                 it.copy(
-                    usernameError = usernameError,
                     badgeNumberError = badgeNumberError,
                     emailError = emailError,
                     passwordError = passwordError,
@@ -110,7 +98,7 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
                 )
             }
 
-            val isValid = listOf(usernameError, badgeNumberError, emailError, passwordError, passwordConfirmError).all { it == null }
+            val isValid = listOf(badgeNumberError, emailError, passwordError, passwordConfirmError).all { it == null }
 
             if (isValid) {
                 viewModelScope.launch {
@@ -119,8 +107,7 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
                         repository.register(
                             email = state.value.email,
                             password = state.value.password,
-                            badgeNumber = state.value.badgeNumber,
-                            username = state.value.username,
+                            badgeNumber = state.value.badgeNumber
                         )
                         _state.update { it.copy(registrationSuccess = true)
                         }

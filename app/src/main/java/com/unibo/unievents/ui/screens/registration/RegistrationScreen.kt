@@ -41,20 +41,6 @@ fun RegistrationScreen(
                 .padding(innerPadding)
                 .padding(24.dp)
         ) {
-
-            OutlinedTextField(
-                leadingIcon = {
-                    Icon(Icons.Filled.Person, "User")
-                },
-                label = { Text("Username") },
-                value = state.username,
-                onValueChange = actions.updateUsername,
-                modifier = Modifier.fillMaxWidth(),
-                isError = state.usernameError != null,
-                supportingText = state.usernameError?.let { { Text(it) } }
-
-            )
-
             OutlinedTextField(
                 leadingIcon = {
                     Icon(Icons.Filled.AccountBox, "Matricola")
