@@ -2,7 +2,7 @@
 accompanistPermissions = "0.35.0-alpha"
 agp = "8.13.2"
 bom = "3.0.1"
-coilCompose = "2.5.0"
+coilCompose = "2.7.0"
 koinAndroidxCompose = "4.0.2"
 kotlin = "2.0.21"
 coreKtx = "1.18.0"
