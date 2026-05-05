@@ -19,7 +19,7 @@ data class RegistrationMetadata(
 
 @Serializable
 data class Admin(
-    @SerialName("id") val id: Int
+    @SerialName("id") val id: String
 )
 
 class AuthRepository(private val supabase: SupabaseClient) {
