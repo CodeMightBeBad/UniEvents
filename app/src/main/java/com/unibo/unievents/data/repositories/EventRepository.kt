@@ -3,6 +3,8 @@ package com.unibo.unievents.data.repositories
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.EventInsert
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -44,8 +46,10 @@ class EventRepository(private val supabase: SupabaseClient) {
             supabase.from("events").insert(event)
 
             Result.success(Unit)
-        } catch (_: Exception) {
-            Result.failure(Exception("Error during event save"))
+        } catch (_: RestException) {
+            Result.failure(Exception("Database error"))
+        } catch (_: HttpRequestException) {
+            Result.failure(Exception("Network error"))
         }
     }
 }
