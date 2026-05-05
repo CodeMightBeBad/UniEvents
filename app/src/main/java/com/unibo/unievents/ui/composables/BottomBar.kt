@@ -27,7 +27,11 @@ fun BottomBar(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(
-                    onClick = { /* TODO */ }
+                    onClick = {
+                        navController.navigate(NavigationRoute.Home) {
+                            popUpTo(0)
+                        }
+                    }
                 ) {
                     Icon(Icons.Filled.Home, "Home")
                 }
@@ -40,7 +44,13 @@ fun BottomBar(navController: NavHostController) {
                     Icon(Icons.Filled.DateRange, "Calendar")
                 }
 
-                IconButton(onClick = { navController.navigate(NavigationRoute.Profile) }) {
+                IconButton(
+                    onClick = {
+                        navController.navigate(NavigationRoute.Profile) {
+                            popUpTo(0)
+                        }
+                    }
+                ) {
                     Icon(Icons.Filled.Person, "User")
                 }
             }
