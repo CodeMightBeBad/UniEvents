@@ -1,7 +1,6 @@
 package com.unibo.unievents.ui.screens.profile
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
@@ -12,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,13 +23,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
 fun ProfileScreen(
     state: ProfileState,
+    actions: ProfileActions,
     navController: NavHostController
 ) {
     var isEditing by remember { mutableStateOf(false) }
@@ -47,7 +47,6 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (!isEditing) {
-
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
@@ -80,12 +79,12 @@ fun ProfileScreen(
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Text(
-                                    text = "Matricola: 1000000001",
+                                    text = "Matricola: ${state.badgeNumber}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Text(
-                                    text = "mario.rossi@studio.unibo.it",
+                                    text = state.email,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
@@ -247,16 +246,7 @@ fun ProfileScreen(
                         }
 
                         OutlinedTextField(
-                            value = "Mario Rossi",
-                            onValueChange = { },
-                            leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
-                            label = { Text("Nome Utente *") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-
-                        OutlinedTextField(
-                            value = "1000000001",
+                            value = state.badgeNumber,
                             onValueChange = {},
                             leadingIcon = { Icon(Icons.Filled.AccountBox, contentDescription = null) },
                             label = { Text("Matricola") },
@@ -297,8 +287,8 @@ fun ProfileScreen(
                         OutlinedTextField(
                             leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                             label = { Text("Password Vecchia") },
-                            value = "",
-                            onValueChange = { },
+                            value = state.oldPassword,
+                            onValueChange = actions.updatePassword,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             visualTransformation = PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth()
@@ -307,8 +297,8 @@ fun ProfileScreen(
                         OutlinedTextField(
                             leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                             label = { Text("Password Nuova") },
-                            value = "",
-                            onValueChange = { },
+                            value = state.newPassword,
+                            onValueChange = actions.updateNewPassword,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             visualTransformation = PasswordVisualTransformation(),
                             supportingText = { Text("Almeno 8 caratteri") },
@@ -324,6 +314,15 @@ fun ProfileScreen(
                     Icon(Icons.Filled.Edit, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("SALVA MODIFICHE")
+                }
+
+                OutlinedButton(
+                    onClick = { isEditing = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Outlined.Cancel, "Cancel")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("ANNULLA")
                 }
             }
         }

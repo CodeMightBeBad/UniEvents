@@ -26,3 +26,10 @@ data class EventInsert(
     @SerialName("address") val address: String,
     @SerialName("max_participants") val maxParticipants: Int?
 )
+
+@Serializable
+data class User(
+    @SerialName("email") val email: String,
+    @SerialName("badge_number") val badgeNumber: String,
+    @SerialName("score") val score: Int
+)

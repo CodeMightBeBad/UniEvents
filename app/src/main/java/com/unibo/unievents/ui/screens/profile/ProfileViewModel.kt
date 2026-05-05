@@ -2,47 +2,52 @@ package com.unibo.unievents.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.unibo.unievents.data.repositories.AuthRepository
+import com.unibo.unievents.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ProfileState(
-    val displayName: String = "",
-    val matricola: String = "",
     val email: String = "",
-    val avatarInitial: String = "",
-    val level: Int = 0,
-    val points: Int = 0,
-    val pointsToNextLevel: Int = 100,
-    val eventiPartecipati: Int = 0,
-    val eventiCreati: Int = 0,
-    val utentiSeguiti: Int = 0,
-    val livelloRaggiunto: Int = 0,
-    val nome: String = "",
+    val badgeNumber: String = "",
     val oldPassword: String = "",
-    val newPassword: String = ""
+    val newPassword: String = "",
+
+    val isLoading: Boolean = false
 )
 
 data class ProfileActions(
-    val onSaveProfile: (newName: String) -> Unit = {},
-    val onSavePassword: (old: String, new: String) -> Unit = { _, _ -> },
-    val onChangePhoto: () -> Unit = {},
-    val onUpdateNome: (String) -> Unit = {},
-    val onUpdateOldPassword: (String) -> Unit = {},
-    val onUpdateNewPassword: (String) -> Unit = {},
-    val logout: () -> Unit
+    val updatePassword: (String) -> Unit,
+    val updateNewPassword: (String) -> Unit
 )
 
-class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
+class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     private val _state = MutableStateFlow(ProfileState())
     val state = _state.asStateFlow()
 
     val actions = ProfileActions(
-        logout = {
-            viewModelScope.launch {
-                repository.logout()
-            }
+        updatePassword = { password ->
+            _state.update { it.copy(oldPassword = password) }
+        },
+        updateNewPassword = { password ->
+            _state.update { it.copy(newPassword = password) }
         }
     )
+
+    fun fetchInformation() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            val userInfo = repository.getCurrentUser()
+            _state.update { it.copy(
+                email = userInfo.email,
+                badgeNumber = userInfo.badgeNumber
+            )}
+        }
+    }
+
+    init {
+        fetchInformation()
+    }
 }
