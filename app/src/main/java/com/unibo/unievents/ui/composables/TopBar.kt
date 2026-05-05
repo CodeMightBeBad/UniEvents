@@ -19,6 +19,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -33,13 +34,16 @@ import org.koin.compose.koinInject
 fun TopBar(
     navController: NavHostController,
     title: String,
-    showMenu: Boolean = true,
-    // isAdmin: Boolean = false
+    showMenu: Boolean = true
 ) {
-
     var menuExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val authRepository = koinInject<AuthRepository>()
+
+    val isAdmin by produceState(false) {
+        value = authRepository.isAdmin()
+    }
+
     TopAppBar(
         title = { Text(title) },
         navigationIcon = {
@@ -58,27 +62,20 @@ fun TopBar(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false}
                 ) {
-                    // if (isAdmin) {
-                    //     DropdownMenuItem(
-                    //         text = { Text("Admin Dashboard") },
-                    //         onClick = {
-                    //             menuExpanded = false
-                    //             navController.navigate(NavigationRoute.AdminBoard)
-                    //         }
-                    //    )
-                    // }
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Filled.Dashboard, "bacheca")
-                        },
-                        text = { Text("Bacheca") },
-                        onClick = {
-                            menuExpanded = false
-                            navController.navigate(NavigationRoute.AdminBoard)
-                        }
-                    )
+                    if (isAdmin) {
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Filled.Dashboard, "bacheca")
+                            },
+                            text = { Text("Bacheca") },
+                            onClick = {
+                                menuExpanded = false
+                                navController.navigate(NavigationRoute.AdminBoard)
+                            }
+                        )
 
-                    HorizontalDivider()
+                        HorizontalDivider()
+                    }
 
                     DropdownMenuItem(
                         leadingIcon = {
@@ -102,9 +99,6 @@ fun TopBar(
                             menuExpanded = false
                             coroutineScope.launch {
                                 authRepository.logout()
-                                navController.navigate(NavigationRoute.Login) {
-                                    popUpTo(0) { inclusive = true }
-                                }
                             }
                         }
                     )
