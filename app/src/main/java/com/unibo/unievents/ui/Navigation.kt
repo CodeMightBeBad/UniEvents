@@ -20,7 +20,6 @@ import com.unibo.unievents.ui.screens.homepage.HomePageScreen
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
 import com.unibo.unievents.ui.screens.login.LoginViewModel
-import com.unibo.unievents.ui.screens.profile.ProfileActions
 import com.unibo.unievents.ui.screens.profile.ProfileScreen
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationScreen
