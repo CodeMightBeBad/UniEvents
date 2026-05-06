@@ -13,6 +13,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.TopBar
 
@@ -106,14 +109,49 @@ fun CreateEventScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
-                        leadingIcon = {
-                            Icon(Icons.Filled.DateRange, "data")
-                        },
-                        label = { Text("Inserisci la data*") },
+                        leadingIcon = { Icon(Icons.Filled.DateRange, "data") },
+                        label = { Text("Data*") },
                         value = state.date,
-                        onValueChange = actions.updateDate,
+                        onValueChange = { newValue ->
+                            val digits = newValue.filter { it.isDigit() }
+                            if (digits.length <= 8) {
+                                actions.updateDate(digits)
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        placeholder = { Text("gg/mm/aaaa") },
+                        visualTransformation = { text ->
+                            val digits = text.text.filter { it.isDigit() }
+                            val formatted = when (digits.length) {
+                                0 -> ""
+                                1, 2 -> digits
+                                3, 4 -> "${digits.take(2)}/${digits.drop(2)}"
+                                else -> "${digits.take(2)}/${digits.substring(2, 4)}/${digits.drop(4)}"
+                            }
+                            TransformedText(
+                                text = androidx.compose.ui.text.AnnotatedString(formatted),
+                                offsetMapping = object : OffsetMapping {
+                                    override fun originalToTransformed(offset: Int): Int {
+                                        if (offset == 0) return 0
+                                        return when (offset) {
+                                            1, 2 -> offset
+                                            3, 4 -> offset + 1
+                                            else -> offset + 2
+                                        }.coerceIn(0, formatted.length)
+                                    }
+                                    override fun transformedToOriginal(offset: Int): Int {
+                                        if (offset == 0) return 0
+                                        return when (offset) {
+                                            1, 2 -> offset
+                                            3, 4 -> offset - 1
+                                            else -> offset - 2
+                                        }.coerceIn(0, text.text.length)
+                                    }
+                                }
+                            )
+                        }
                     )
                 }
 
@@ -125,11 +163,14 @@ fun CreateEventScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.AccessTime, "ora")
                         },
-                        label = { Text("Inserisci l'ora*") },
+                        label = { Text("Ora*") },
                         value = state.time,
                         onValueChange = actions.updateTime,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        placeholder = { Text("oo:mm") },
+                        visualTransformation = timeVisualTransformation()
                     )
                 }
             }
@@ -164,19 +205,25 @@ fun CreateEventScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = actions.submit,
+                    onClick = { },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = state.title.isNotBlank() &&
+                            state.date.length == 10 &&  // deve essere DD/MM/YYYY (10 caratteri)
+                            state.time.length == 5 &&   // deve essere HH:MM (5 caratteri)
+                            state.address.isNotBlank() &&
+                            (state.maxParticipants ?: 0) > 0
                 ) {
                     Text("RICHIEDI PUBBLICAZIONE")
                 }
 
                 OutlinedButton(
-                    onClick = { },
+                    onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("ANNULLA")
+                    (state.maxParticipants ?: 0) > 0
                 }
             }
 
@@ -185,20 +232,87 @@ fun CreateEventScreen(
     }
 }
 
+// VisualTransformation per la data (GG/MM/AAAA)
+@Composable
+fun dateVisualTransformation(): VisualTransformation {
+    return VisualTransformation { text ->
+        val digits = text.text.filter { it.isDigit() }.take(8)
+        val formatted = when (digits.length) {
+            0 -> ""
+            1 -> digits
+            2 -> digits
+            3 -> "${digits.take(2)}/${digits.drop(2)}"
+            4 -> "${digits.take(2)}/${digits.drop(2)}"
+            5 -> "${digits.take(2)}/${digits.drop(2).take(2)}/${digits.drop(4)}"
+            else -> "${digits.take(2)}/${digits.substring(2, 4)}/${digits.substring(4, 8)}"
+        }
 
+        TransformedText(
+            text = androidx.compose.ui.text.AnnotatedString(formatted),
+            offsetMapping = object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int {
+                    if (offset == 0) return 0
+                    val newOffset = when (offset) {
+                        1, 2 -> offset
+                        3 -> 4
+                        4 -> 5
+                        5 -> 7
+                        6, 7, 8 -> offset + 2
+                        else -> formatted.length
+                    }
+                    return newOffset.coerceIn(0, formatted.length)
+                }
 
+                override fun transformedToOriginal(offset: Int): Int {
+                    return when (offset) {
+                        0, 1, 2 -> offset
+                        3, 4 -> offset - 1
+                        5, 6 -> offset - 2
+                        7, 8, 9, 10 -> offset - 2
+                        else -> text.text.length
+                    }
+                }
+            }
+        )
+    }
+}
 
+// VisualTransformation per l'ora (HH:MM)
+@Composable
+fun timeVisualTransformation(): VisualTransformation {
+    return VisualTransformation { text ->
+        val digits = text.text.filter { it.isDigit() }.take(4)
+        val formatted = when (digits.length) {
+            0 -> ""
+            1 -> digits
+            2 -> digits
+            3 -> "${digits.take(2)}:${digits.drop(2)}"
+            else -> "${digits.take(2)}:${digits.substring(2, 4)}"
+        }
 
+        TransformedText(
+            text = androidx.compose.ui.text.AnnotatedString(formatted),
+            offsetMapping = object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int {
+                    if (offset == 0) return 0
+                    return when (offset) {
+                        1, 2 -> offset
+                        3 -> 4
+                        else -> formatted.length
+                    }
+                }
 
-
-
-
-
-
-
-
-
-
+                override fun transformedToOriginal(offset: Int): Int {
+                    return when (offset) {
+                        0, 1, 2 -> offset
+                        3, 4 -> offset - 1
+                        else -> text.text.length
+                    }
+                }
+            }
+        )
+    }
+}
 
 /*
 import android.Manifest

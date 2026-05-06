@@ -3,7 +3,6 @@ package com.unibo.unievents.ui.screens.createEvent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.EventInsert
 import com.unibo.unievents.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.format.char
 
 data class CreateEventState(
     val title: String = "",
@@ -20,11 +18,16 @@ data class CreateEventState(
     val date: String = "",
     val time: String = "",
     val address: String = "",
-    val maxParticipants: Int? = 50,
-
-    val isLoading: Boolean = false,
-    val isFormValid: Boolean = false
-)
+    val maxParticipants: Int? = 0,
+    val isLoading: Boolean = false
+) {
+    val isFormValid: Boolean
+        get() = title.isNotBlank() &&
+                date.length == 10 &&
+                time.length == 5 &&
+                address.isNotBlank() &&
+                (maxParticipants ?: 0) > 0
+}
 
 data class CreateEventActions(
     val updateTitle: (String) -> Unit,
@@ -51,39 +54,73 @@ class CreateEventViewModel(private val repository: EventRepository) : ViewModel(
             _state.update { it.copy(date = date) }
         },
         updateTime = { time ->
-            _state.update { it.copy(time = time) }
+            if (time.length <= 5) {
+                _state.update { it.copy(time = time) }
+            }
         },
         updateAddress = { address ->
             _state.update { it.copy(address = address) }
         },
         updateMaxParticipants = { maxParticipants ->
-            _state.update { it.copy(maxParticipants = maxParticipants.toIntOrNull() ?: 0) }
+            val filtered = maxParticipants.filter { it.isDigit() }
+            val value = if (filtered.isEmpty()) 0 else filtered.toIntOrNull() ?: 0
+            _state.update { it.copy(maxParticipants = value) }
         },
         submit = {
-            val dateFormat = LocalDate.Format {
-                dayOfMonth()
-                char('/')
-                monthNumber()
-                char('/')
-                year()
+            val currentState = state.value
+
+            if (currentState.date.length != 10) {
+                Log.d("CreateEvent", "Data non completa: ${currentState.date}")
+                return@CreateEventActions
+
             }
 
-            val event = EventInsert(
-                title = state.value.title,
-                description = state.value.description,
-                date = LocalDate.parse(state.value.date, dateFormat),
-                time = LocalTime.parse(state.value.time),
-                address = state.value.address,
-                maxParticipants = state.value.maxParticipants
-            )
+            if (currentState.time.length != 5) {
+                Log.d("CreateEvent", "Ora non completa: ${currentState.time}")
+                return@CreateEventActions
+
+            }
+
+            if (!currentState.date.matches(Regex("\\d{2}/\\d{2}/\\d{4}"))) {
+                Log.d("CreateEvent", "Formato data non valido")
+                return@CreateEventActions
+
+            }
+
+            if (!currentState.time.matches(Regex("\\d{2}:\\d{2}"))) {
+                Log.d("CreateEvent", "Formato ora non valido")
+                return@CreateEventActions
+            }
 
             try {
+                val dateParts = currentState.date.split("/")
+                val timeParts = currentState.time.split(":")
+
+                val day = dateParts[0].toInt()
+                val month = dateParts[1].toInt()
+                val year = dateParts[2].toInt()
+                val hour = timeParts[0].toInt()
+                val minute = timeParts[1].toInt()
+
+                val event = EventInsert(
+                    title = currentState.title,
+                    description = currentState.description,
+                    date = LocalDate(year, month, day),
+                    time = LocalTime(hour, minute),
+                    address = currentState.address,
+                    maxParticipants = currentState.maxParticipants ?: 0
+                )
+
                 viewModelScope.launch {
-                    val result = repository.createEvent(event)
-                    result.onFailure { Log.d("CreateEvent", "Error during request") }
+                    try {
+                        val result = repository.createEvent(event)
+                        result.onFailure { Log.d("CreateEvent", "Error: ${it.message}") }
+                    } catch (ex: Exception) {
+                        Log.d("CreateEvent", ex.message.toString())
+                    }
                 }
             } catch (ex: Exception) {
-                Log.d("CreateEvent", ex.message.toString())
+                Log.d("CreateEvent", "Errore parsing: ${ex.message}")
             }
         }
     )
