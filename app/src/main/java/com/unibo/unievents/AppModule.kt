@@ -1,5 +1,6 @@
 package com.unibo.unievents
 
+import com.unibo.unievents.data.OSMDataSource
 import com.unibo.unievents.data.repositories.AuthRepository
 import com.unibo.unievents.data.repositories.EventRepository
 import com.unibo.unievents.data.repositories.UserRepository
@@ -15,10 +16,33 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.http.HttpHeaders
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val AppModule = module {
+    single<HttpClient> {
+        HttpClient {
+            defaultRequest {
+                headers.append(
+                    HttpHeaders.UserAgent,
+                    "UniEvents/1.0 (Android)"
+                )
+            }
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
+    }
+
+    single { OSMDataSource(get()) }
     single<SupabaseClient> {
         createSupabaseClient(
             supabaseUrl = "https://qhgaujakvtxryayfijhz.supabase.co",
@@ -37,7 +61,7 @@ val AppModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { HomePageViewModel(get()) }
-    viewModel { CreateEventViewModel(get()) }
+    viewModel { CreateEventViewModel(get(), get()) }
     viewModel { BoardViewModel(get()) }
     viewModel { ResearchViewModel(get()) }
 }

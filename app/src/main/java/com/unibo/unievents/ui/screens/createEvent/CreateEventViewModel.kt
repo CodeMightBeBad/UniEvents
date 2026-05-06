@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.EventInsert
+import com.unibo.unievents.data.OSMDataSource
+import com.unibo.unievents.data.OSMPlace
 import com.unibo.unievents.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,15 +25,10 @@ data class CreateEventState(
     val address: String = "",
     val maxParticipants: Int? = 0,
     val isLoading: Boolean = false,
-    val dateError: String? = null
-) {
-    val isFormValid: Boolean
-        get() = title.isNotBlank() &&
-                date.length == 10 &&
-                time.length == 5 &&
-                address.isNotBlank() &&
-                (maxParticipants ?: 0) > 0
-}
+    val dateError: String? = null,
+    val addressSuggestions: List<OSMPlace> = emptyList(),
+    val isAddressLoading: Boolean = false
+)
 
 data class CreateEventActions(
     val updateTitle: (String) -> Unit,
@@ -41,13 +38,20 @@ data class CreateEventActions(
     val updateAddress: (String) -> Unit,
     val updateMaxParticipants: (String) -> Unit,
     val submit: () -> Unit,
-    val setDateError: (String?) -> Unit
+    val setDateError: (String?) -> Unit,
+    val searchAddress: suspend (String) -> Unit,
+    val clearSuggestions: () -> Unit,
+    val selectAddress: (String) -> Unit
 )
 
-class CreateEventViewModel(private val repository: EventRepository) : ViewModel() {
+class CreateEventViewModel(
+    private val repository: EventRepository,
+    private val osmDataSource: OSMDataSource
+) : ViewModel() {
     private val _state = MutableStateFlow(CreateEventState())
     val state = _state.asStateFlow()
 
+    private var searchJob: kotlinx.coroutines.Job? = null
     private fun isValidDate(date: String, time: String): Boolean {
         try {
             if (date.length != 8 || time.length != 4) return false
@@ -116,7 +120,12 @@ class CreateEventViewModel(private val repository: EventRepository) : ViewModel(
             }
         },
         updateAddress = { address ->
-            _state.update { it.copy(address = address) }
+            _state.update {
+                it.copy(
+                    address = address,
+                    addressSuggestions = emptyList()
+                )
+            }
         },
         updateMaxParticipants = { maxParticipants ->
             val filtered = maxParticipants.filter { it.isDigit() }
@@ -125,6 +134,51 @@ class CreateEventViewModel(private val repository: EventRepository) : ViewModel(
         },
         setDateError = { error ->
             _state.update { it.copy(dateError = error) }
+        },
+        searchAddress = { query ->
+            if (query.length < 3) {
+                _state.update {
+                    it.copy(
+                        addressSuggestions = emptyList(),
+                        isAddressLoading = false
+                    )
+                }
+                return@CreateEventActions
+            }
+
+            searchJob?.cancel()
+
+            _state.update { it.copy(isAddressLoading = true) }
+
+            searchJob = viewModelScope.launch {
+                try {
+                    val suggestions = osmDataSource.searchAddressesInItaly(query)
+                    _state.update {
+                        it.copy(
+                            addressSuggestions = suggestions,
+                            isAddressLoading = false
+                        )
+                    }
+                } catch (e: Exception) {
+                    _state.update {
+                        it.copy(
+                            addressSuggestions = emptyList(),
+                            isAddressLoading = false
+                        )
+                    }
+                }
+            }
+        },
+        clearSuggestions = {
+            _state.update { it.copy(addressSuggestions = emptyList()) }
+        },
+        selectAddress = { selectedAddress ->
+            _state.update {
+                it.copy(
+                    address = selectedAddress,
+                    addressSuggestions = emptyList()
+                )
+            }
         },
         submit = {
             val currentState = state.value

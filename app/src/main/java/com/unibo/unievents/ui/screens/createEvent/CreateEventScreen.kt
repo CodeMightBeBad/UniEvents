@@ -13,11 +13,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.TopBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import kotlinx.coroutines.launch
 
 @Composable
 fun CreateEventScreen(
@@ -25,6 +31,17 @@ fun CreateEventScreen(
     actions: CreateEventActions,
     navController: NavHostController
 ) {
+    var addressSearchDebounce by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    val scope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
+    var addressTextFieldValue by remember { mutableStateOf(TextFieldValue(state.address)) }
+
+    LaunchedEffect(state.address) {
+        if (addressTextFieldValue.text != state.address) {
+            addressTextFieldValue = TextFieldValue(state.address, selection = TextRange(state.address.length))
+        }
+    }
+
     Scaffold(
         topBar = {
             TopBar(navController, "Crea un Evento")
@@ -86,6 +103,70 @@ fun CreateEventScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
+
+            OutlinedTextField(
+                value = addressTextFieldValue,
+                onValueChange = { newValue ->
+                    addressTextFieldValue = newValue
+                    actions.updateAddress(newValue.text)
+
+                    addressSearchDebounce?.cancel()
+                    addressSearchDebounce = scope.launch {
+                        kotlinx.coroutines.delay(300)
+                        actions.searchAddress(newValue.text)
+                    }
+                },
+                leadingIcon = {
+                    Icon(Icons.Filled.Place, "indirizzo")
+                },
+                label = { Text("Indirizzo*") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                shape = RoundedCornerShape(12.dp),
+                trailingIcon = {
+                    if (state.isAddressLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            )
+
+            if (state.addressSuggestions.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        state.addressSuggestions.forEach { suggestion ->
+                            TextButton(
+                                onClick = {
+                                    addressTextFieldValue = TextFieldValue(suggestion.displayName, selection = TextRange(suggestion.displayName.length))
+                                    actions.selectAddress(suggestion.displayName)
+                                    focusRequester.requestFocus()
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = suggestion.displayName,
+                                    modifier = Modifier.padding(12.dp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            if (suggestion != state.addressSuggestions.last()) {
+                                HorizontalDivider()
+                            }
+                        }
+                    }
+                }
+            }
 
             OutlinedTextField(
                 leadingIcon = {
@@ -209,17 +290,6 @@ fun CreateEventScreen(
                     )
                 }
             }
-
-            OutlinedTextField(
-                leadingIcon = {
-                    Icon(Icons.Filled.Place, "indirizzo")
-                },
-                label = { Text("Indirizzo*") },
-                value = state.address,
-                onValueChange = actions.updateAddress,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
 
             OutlinedTextField(
                 leadingIcon = {
