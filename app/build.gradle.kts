@@ -80,4 +80,5 @@ dependencies {
     implementation(libs.ktor.client.android)
     implementation(libs.auth.kt)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.storage.kt)
 }

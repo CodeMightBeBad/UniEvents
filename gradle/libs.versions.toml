@@ -64,6 +64,7 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 play-services-location-v2101 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
+storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
