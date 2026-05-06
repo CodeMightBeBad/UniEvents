@@ -29,7 +29,9 @@ data class EventInsert(
 
 @Serializable
 data class User(
-    @SerialName("email") val email: String,
+    @SerialName("id") val id: String,
     @SerialName("badge_number") val badgeNumber: String,
-    @SerialName("score") val score: Int
+    @SerialName("profile_picture") val profilePicture: String?,
+    @SerialName("score") val score: Int,
+    @SerialName("email") val email: String
 )
