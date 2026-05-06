@@ -9,8 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.TopBar
 
@@ -75,10 +77,10 @@ fun CreateEventScreen(
                 leadingIcon = {
                     Icon(Icons.Filled.Title, "titolo")
                 },
+                label = { Text("Inserisci il titolo*") },
                 value = state.title,
                 onValueChange = actions.updateTitle,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Inserisci il titolo*") },
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -86,10 +88,10 @@ fun CreateEventScreen(
                 leadingIcon = {
                     Icon(Icons.Filled.Abc, "descrizione")
                 },
+                label = { Text("Descrivi il tuo evento") },
                 value = state.description,
                 onValueChange = actions.updateDescription,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Descrivi il tuo evento") },
                 minLines = 4,
                 maxLines = 6,
                 shape = RoundedCornerShape(12.dp)
@@ -107,10 +109,10 @@ fun CreateEventScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.DateRange, "data")
                         },
+                        label = { Text("Inserisci la data*") },
                         value = state.date,
                         onValueChange = actions.updateDate,
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("gg/mm/aaaa") },
                         shape = RoundedCornerShape(12.dp)
                     )
                 }
@@ -123,10 +125,10 @@ fun CreateEventScreen(
                         leadingIcon = {
                             Icon(Icons.Filled.AccessTime, "ora")
                         },
+                        label = { Text("Inserisci l'ora*") },
                         value = state.time,
                         onValueChange = actions.updateTime,
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("--:--") },
                         shape = RoundedCornerShape(12.dp)
                     )
                 }
@@ -136,10 +138,10 @@ fun CreateEventScreen(
                 leadingIcon = {
                     Icon(Icons.Filled.Place, "indirizzo")
                 },
+                label = { Text("Indirizzo*") },
                 value = state.address,
                 onValueChange = actions.updateAddress,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Indirizzo*") },
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -147,10 +149,11 @@ fun CreateEventScreen(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, "persone")
                 },
+                label = { Text("Numero massimo partecipanti*") },
                 value = state.maxParticipants.toString(),
                 onValueChange = actions.updateMaxParticipants,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Numero massimo partecipanti*") },
                 shape = RoundedCornerShape(12.dp)
             )
 

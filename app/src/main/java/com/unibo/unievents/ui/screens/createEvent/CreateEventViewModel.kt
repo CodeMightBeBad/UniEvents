@@ -15,11 +15,11 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format.char
 
 data class CreateEventState(
-    val title: String = "title",
-    val description: String = "desc",
-    val date: String = "12/12/2025",
-    val time: String = "15:00",
-    val address: String = "via Roma 4",
+    val title: String = "",
+    val description: String = "",
+    val date: String = "",
+    val time: String = "",
+    val address: String = "",
     val maxParticipants: Int? = 50,
 
     val isLoading: Boolean = false,
@@ -57,7 +57,7 @@ class CreateEventViewModel(private val repository: EventRepository) : ViewModel(
             _state.update { it.copy(address = address) }
         },
         updateMaxParticipants = { maxParticipants ->
-            _state.update { it.copy(maxParticipants = maxParticipants.toInt()) }
+            _state.update { it.copy(maxParticipants = maxParticipants.toIntOrNull() ?: 0) }
         },
         submit = {
             val dateFormat = LocalDate.Format {
