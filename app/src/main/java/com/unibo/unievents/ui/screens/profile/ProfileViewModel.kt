@@ -1,8 +1,12 @@
 package com.unibo.unievents.ui.screens.profile
 
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.repositories.UserRepository
+import com.unibo.unievents.utils.bitmapToByteArray
+import com.unibo.unievents.utils.uriToBitmap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,7 +23,8 @@ data class ProfileState(
 
 data class ProfileActions(
     val updatePassword: (String) -> Unit,
-    val updateNewPassword: (String) -> Unit
+    val updateNewPassword: (String) -> Unit,
+    val uploadImage: (Bitmap) -> Unit
 )
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
@@ -32,6 +37,13 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
         },
         updateNewPassword = { password ->
             _state.update { it.copy(newPassword = password) }
+        },
+        uploadImage = { bitmap ->
+            val imageBytes = bitmapToByteArray(bitmap)
+
+            viewModelScope.launch {
+                repository.uploadProfile(imageBytes)
+            }
         }
     )
 

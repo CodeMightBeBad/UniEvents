@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -25,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
+import com.unibo.unievents.utils.rememberCameraLauncher
+import com.unibo.unievents.utils.uriToBitmap
 
 @Composable
 fun ProfileScreen(
@@ -34,6 +37,14 @@ fun ProfileScreen(
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var statsExpanded by remember { mutableStateOf(true) }
+
+    val ctx = LocalContext.current
+    val (picUri, takePicture) = rememberCameraLauncher(
+        onPictureTaken = { uri ->
+            val bitmap = uriToBitmap(uri, ctx.contentResolver)
+            actions.uploadImage(bitmap)
+        }
+    )
 
     Scaffold(
         topBar = { TopBar(navController, if (isEditing) "Modifica Profilo" else "Il mio Profilo") },
@@ -73,18 +84,12 @@ fun ProfileScreen(
                             }
                             Column {
                                 Text(
-                                    text = "Mario Rossi",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
+                                    text = state.email,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Text(
                                     text = "Matricola: ${state.badgeNumber}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                                Text(
-                                    text = state.email,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
@@ -237,7 +242,7 @@ fun ProfileScreen(
                         Text("Foto Profilo", style = MaterialTheme.typography.labelLarge)
 
                         OutlinedButton(
-                            onClick = { },
+                            onClick = takePicture,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Filled.CameraAlt, contentDescription = null)
