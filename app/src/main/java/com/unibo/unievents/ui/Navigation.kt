@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,13 +53,17 @@ fun NavGraph(navController: NavHostController) {
     // Checking what is the session status
     LaunchedEffect(sessionStatus) {
         when(sessionStatus) {
-            // If the user is authenticated, redirect to the homepage
+            // If the user is authenticated either redirect to homepage or do nothing
             is SessionStatus.Authenticated -> {
-                navController.navigate(NavigationRoute.Home) {
-                    // When redirected, remove the splash screen from the navigation backstack
-                    popUpTo(0) { inclusive = true }
+                val currentPage = navController.currentBackStackEntry?.destination
+
+                if (currentPage?.hasRoute<NavigationRoute.Splash>() == true) {
+                    navController.navigate(NavigationRoute.Home) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             }
+
             // If the user is not authenticated,redirect to the login screen
             is SessionStatus.NotAuthenticated -> {
                 navController.navigate(NavigationRoute.Login) {
@@ -66,7 +71,17 @@ fun NavGraph(navController: NavHostController) {
                 }
             }
 
-            else -> { }
+            // If the session refresh fails, clear the session data
+            is SessionStatus.RefreshFailure -> {
+                supabase.auth.clearSession()
+            }
+
+            // If the session is still initializing, wait
+            is SessionStatus.Initializing -> {
+                navController.navigate(NavigationRoute.Splash) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
         }
     }
 
