@@ -64,6 +64,7 @@ class AuthRepository(private val supabase: SupabaseClient) {
 
     suspend fun logout() {
         supabase.auth.signOut()
+        supabase.auth.clearSession()
     }
 
     suspend fun isAdmin(): Boolean {
