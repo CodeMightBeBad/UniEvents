@@ -136,7 +136,10 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = actions.confirm,
+                        onClick = {
+                            actions.confirm()
+                            navController.navigate(NavigationRoute.Splash)
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     ) {

@@ -115,7 +115,10 @@ fun RegistrationScreen(
             }
 
             Button(
-                onClick = { actions.confirm() },
+                onClick = {
+                    actions.confirm()
+                    navController.navigate(NavigationRoute.Splash)
+                },
                 enabled = !state.loading
             ) {
                 Text("Registrati")
