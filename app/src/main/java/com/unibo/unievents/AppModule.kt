@@ -43,6 +43,7 @@ val AppModule = module {
     }
 
     single { OSMDataSource(get()) }
+
     single<SupabaseClient> {
         createSupabaseClient(
             supabaseUrl = "https://qhgaujakvtxryayfijhz.supabase.co",
@@ -53,6 +54,7 @@ val AppModule = module {
             install(Storage)
         }
     }
+
     single { AuthRepository(get()) }
     single { EventRepository(get()) }
     single { UserRepository(get()) }
