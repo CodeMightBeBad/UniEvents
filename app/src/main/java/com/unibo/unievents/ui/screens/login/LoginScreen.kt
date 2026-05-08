@@ -46,9 +46,6 @@ fun LoginScreen(
     navController: NavHostController
 ) {
     Scaffold(
-        topBar = {
-            TopBar(navController, "Login", false)
-        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
