@@ -8,6 +8,7 @@ import com.unibo.unievents.ui.screens.board.BoardViewModel
 import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginViewModel
+import com.unibo.unievents.ui.screens.map.MapViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
 import com.unibo.unievents.ui.screens.research.ResearchViewModel
@@ -66,4 +67,5 @@ val AppModule = module {
     viewModel { CreateEventViewModel(get(), get()) }
     viewModel { BoardViewModel(get()) }
     viewModel { ResearchViewModel(get()) }
+    viewModel { MapViewModel(get()) }
 }

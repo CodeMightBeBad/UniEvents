@@ -1,10 +1,16 @@
 package com.unibo.unievents.ui.screens.map
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.unibo.unievents.data.Coordinates
+import com.unibo.unievents.data.LocationService
+import com.unibo.unievents.utils.PermissionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 data class EventLocation(
@@ -24,25 +30,50 @@ data class EventLocation(
 data class MapUiState(
     val events: List<EventLocation> = emptyList(),
     val selectedEvent: EventLocation? = null,
-    val isLocationPermissionGranted: Boolean = false,
+    val permissionStatus: Map<String, PermissionStatus> = emptyMap(),
+    val isLocationEnabled: Boolean = true,
+    val currentLocation: Coordinates? = null,
+    val isLoadingLocation: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
-class MapViewModel : ViewModel() {
+class MapViewModel(
+    private val context: Context
+) : ViewModel() {
+
+    private val locationService = LocationService(context)
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
 
     init {
         loadEvents()
+        observeLocation()
+    }
+
+    private fun observeLocation() {
+        locationService.coordinates
+            .onEach { coordinates ->
+                _uiState.value = _uiState.value.copy(
+                    currentLocation = coordinates,
+                    isLoadingLocation = false
+                )
+            }
+            .launchIn(viewModelScope)
+
+        viewModelScope.launch {
+            locationService.isLoading
+                .collect { isLoading ->
+                    _uiState.value = _uiState.value.copy(isLoadingLocation = isLoading)
+                }
+        }
     }
 
     private fun loadEvents() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            // Dati di esempio per i luoghi degli eventi
             val events = listOf(
                 EventLocation(
                     id = "1",
@@ -100,8 +131,23 @@ class MapViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(selectedEvent = null)
     }
 
-    fun updatePermissionStatus(granted: Boolean) {
-        _uiState.value = _uiState.value.copy(isLocationPermissionGranted = granted)
+    fun updatePermissionStatus(statuses: Map<String, PermissionStatus>) {
+        _uiState.value = _uiState.value.copy(permissionStatus = statuses)
+    }
+
+    fun updateLocationEnabled(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(isLocationEnabled = enabled)
+    }
+
+    suspend fun getCurrentLocation(): Coordinates? {
+        return try {
+            locationService.getCurrentLocation()
+        } catch (e: IllegalStateException) {
+            _uiState.value = _uiState.value.copy(isLocationEnabled = false)
+            null
+        } catch (e: SecurityException) {
+            null
+        }
     }
 
     fun formatParticipantText(current: Int, max: Int): String = "$current / $max partecipanti"
