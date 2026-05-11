@@ -1,5 +1,6 @@
 package com.unibo.unievents.data.repositories
 
+import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.User
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
@@ -82,5 +83,26 @@ class UserRepository(private val supabase: SupabaseClient) {
                 eq("event_id", eventID)
             }
         }
+    }
+
+    suspend fun hasJoined(eventID: Int): Boolean {
+        val user = getCurrentUser().id
+
+        return supabase.from("participations").select {
+            filter {
+                eq("user_id", user)
+                eq("event_id", eventID)
+            }
+        }.decodeList<EventParticipation>().isEmpty()
+    }
+
+    suspend fun getOwnEvents(): List<Event> {
+        val user = getCurrentUser().id
+
+        return supabase.from("events").select {
+            filter {
+                eq("created_by", user)
+            }
+        }.decodeList<Event>()
     }
 }

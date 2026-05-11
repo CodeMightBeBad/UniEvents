@@ -16,6 +16,12 @@ data class EventId (
     @SerialName("id") val id: Int
 )
 
+@Serializable
+data class EventParticipants (
+    @SerialName("user_id") val userID: String,
+    @SerialName("event_id") val eventID: Int
+)
+
 class EventRepository(private val supabase: SupabaseClient) {
     suspend fun getApprovedEvents(): List<Event> {
         return supabase.postgrest["events"]
@@ -49,5 +55,13 @@ class EventRepository(private val supabase: SupabaseClient) {
         } catch (_: HttpRequestException) {
             Result.failure(Exception("Network error"))
         }
+    }
+
+    suspend fun getPeopleCount(event: Event): Int {
+        return supabase.from("participations").select {
+            filter {
+                eq("event_id", event.id)
+            }
+        }.decodeList<EventParticipation>().count()
     }
 }
