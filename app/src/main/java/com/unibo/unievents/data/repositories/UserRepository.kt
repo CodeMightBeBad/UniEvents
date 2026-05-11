@@ -5,6 +5,14 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class EventParticipation (
+    @SerialName("user_id") val userID: String,
+    @SerialName("event_id") val eventID: Int
+)
 
 class UserRepository(private val supabase: SupabaseClient) {
     suspend fun getCurrentUser(): User {
@@ -56,6 +64,23 @@ class UserRepository(private val supabase: SupabaseClient) {
 
         supabase.from("user_information").update(newInfo) {
             filter { eq("id", currentInfo.id) }
+        }
+    }
+
+    suspend fun joinEvent(eventID: Int) {
+        val user = getCurrentUser().id
+
+        supabase.from("participations").insert(EventParticipation(user, eventID))
+    }
+
+    suspend fun leaveEvent(eventID: Int) {
+        val user = getCurrentUser().id
+
+        supabase.from("participations").delete {
+            filter {
+                eq("user_id", user)
+                eq("event_id", eventID)
+            }
         }
     }
 }
