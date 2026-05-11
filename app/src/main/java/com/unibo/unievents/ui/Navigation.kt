@@ -21,6 +21,8 @@ import com.unibo.unievents.ui.screens.homepage.HomePageScreen
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
 import com.unibo.unievents.ui.screens.login.LoginViewModel
+import com.unibo.unievents.ui.screens.map.MapEventsScreen
+import com.unibo.unievents.ui.screens.map.MapViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileScreen
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationScreen
@@ -43,6 +45,7 @@ sealed interface NavigationRoute {
     @Serializable data object AddEvent : NavigationRoute
     @Serializable data object AdminBoard : NavigationRoute
     @Serializable data object Research : NavigationRoute
+    @Serializable data object Map : NavigationRoute
 }
 
 @Composable
@@ -145,6 +148,12 @@ fun NavGraph(navController: NavHostController) {
             val vm = koinViewModel<ResearchViewModel>()
 
             ResearchScreen(vm, navController)
+        }
+
+        composable<NavigationRoute.Map> {
+            val vm = koinViewModel<MapViewModel>()
+
+            MapEventsScreen(navController, vm)
         }
     }
 }

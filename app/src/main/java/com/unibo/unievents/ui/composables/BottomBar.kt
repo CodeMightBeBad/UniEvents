@@ -36,7 +36,13 @@ fun BottomBar(navController: NavHostController) {
                     Icon(Icons.Filled.Home, "Home")
                 }
 
-                IconButton(onClick = { /* TODO */ }) {
+                IconButton(
+                    onClick = {
+                        navController.navigate(NavigationRoute.Map) {
+                            popUpTo(0)
+                        }
+                    }
+                ) {
                     Icon(Icons.Filled.LocationOn, "Map")
                 }
 
