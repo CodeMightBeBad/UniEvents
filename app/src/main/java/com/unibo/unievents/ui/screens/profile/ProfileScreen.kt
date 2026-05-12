@@ -63,15 +63,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.BottomBar
-import com.unibo.unievents.ui.composables.TopBar
 import com.unibo.unievents.utils.rememberCameraLauncher
 import com.unibo.unievents.utils.rememberGalleryLauncher
 import com.unibo.unievents.utils.uriToBitmap
 import androidx.compose.foundation.Image
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
 fun ProfileScreen(
@@ -85,19 +84,17 @@ fun ProfileScreen(
     val ctx = LocalContext.current
     var showImagePickerDialog by remember { mutableStateOf(false) }
 
-    val (picUri, takePicture) = rememberCameraLauncher(
+    val (_, takePicture) = rememberCameraLauncher(
         onPictureTaken = { uri ->
             val bitmap = uriToBitmap(uri, ctx.contentResolver)
-            actions.setProfileImage(bitmap)
-            actions.uploadImage(bitmap)
+            actions.setProfilePicture(bitmap)
         }
     )
 
     val pickFromGallery = rememberGalleryLauncher(
         onImagePicked = { uri ->
             val bitmap = uriToBitmap(uri, ctx.contentResolver)
-            actions.setProfileImage(bitmap)
-            actions.uploadImage(bitmap)
+            actions.setProfilePicture(bitmap)
         }
     )
 
@@ -129,23 +126,14 @@ fun ProfileScreen(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    when {
-                                        state.profileImageBitmap != null -> {
-                                            Image(
-                                                bitmap = state.profileImageBitmap!!.asImageBitmap(),
-                                                contentDescription = "Foto profilo",
-                                                modifier = Modifier.size(56.dp).clip(CircleShape),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                        }
-                                        else -> {
-                                            Text(
-                                                text = state.email.take(2).uppercase(),
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                                            )
-                                        }
+                                    if (state.profilePicture == null) {
+                                        Icon(Icons.Filled.Person, "User placeholder")
+                                    } else {
+                                        Image(
+                                            bitmap = state.profilePicture.asImageBitmap(),
+                                            contentDescription = "User profile picture",
+                                            contentScale = ContentScale.Crop
+                                        )
                                     }
                                 }
                             }
@@ -300,7 +288,6 @@ fun ProfileScreen(
                 }
 
             } else {
-
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -343,22 +330,14 @@ fun ProfileScreen(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    if (state.profileImageBitmap != null) {
+                                    if (state.profilePicture != null && !state.loading) {
                                         Image(
-                                            bitmap = state.profileImageBitmap!!.asImageBitmap(),
+                                            bitmap = state.profilePicture.asImageBitmap(),
                                             contentDescription = "Foto profilo",
-                                            modifier = Modifier
-                                                .size(56.dp)
-                                                .clip(CircleShape),
                                             contentScale = ContentScale.Crop
                                         )
                                     } else {
-                                        Text(
-                                            text = state.email.take(2).uppercase(),
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
+                                        Icon(Icons.Filled.Person, "User placeholder")
                                     }
                                 }
                             }
@@ -371,9 +350,6 @@ fun ProfileScreen(
                                 Text("CAMBIA FOTO PROFILO")
                             }
                         }
-
-
-
 
                         OutlinedTextField(
                             value = state.badgeNumber,

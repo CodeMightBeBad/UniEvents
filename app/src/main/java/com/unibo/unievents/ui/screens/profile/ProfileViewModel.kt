@@ -1,7 +1,6 @@
 package com.unibo.unievents.ui.screens.profile
 
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.repositories.UserRepository
@@ -14,19 +13,16 @@ import kotlinx.coroutines.launch
 data class ProfileState(
     val email: String = "",
     val badgeNumber: String = "",
-    val profilePictureUrl: String = "",
-    val profileImageBitmap: Bitmap? = null,
+    val profilePicture: Bitmap? = null,
     val oldPassword: String = "",
     val newPassword: String = "",
-    val isLoading: Boolean = false
+    val loading: Boolean = false
 )
 
 data class ProfileActions(
     val updatePassword: (String) -> Unit,
     val updateNewPassword: (String) -> Unit,
-    val uploadImage: (Bitmap) -> Unit,
-    val setProfileImage: (Bitmap) -> Unit,
-    val fetchInformation: () -> Unit
+    val setProfilePicture: (Bitmap) -> Unit
 )
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
@@ -40,39 +36,32 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
         updateNewPassword = { password ->
             _state.update { it.copy(newPassword = password) }
         },
-        setProfileImage = { bitmap ->
-            _state.update { it.copy(profileImageBitmap = bitmap) }
-        },
-        uploadImage = { bitmap ->
-            _state.update { it.copy(profileImageBitmap = bitmap) }
-            val imageBytes = bitmapToByteArray(bitmap)
+        setProfilePicture = { bitmap ->
             viewModelScope.launch {
-                try {
-                    repository.uploadProfile(imageBytes)
-                    fetchInformation()
-                    _state.update { it.copy(profileImageBitmap = bitmap) }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                _state.update { it.copy(loading = true) }
+                repository.uploadProfile(bitmapToByteArray(bitmap))
+
+                _state.update { it.copy(
+                    profilePicture = repository.downloadProfilePicture(),
+                    loading = false
+                )}
+
+                fetchInformation()
             }
-        },
-        fetchInformation = { fetchInformation() }
+        }
     )
 
-    fun fetchInformation(preserveBitmap: Boolean = false) {
+    fun fetchInformation() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(loading = true) }
             val userInfo = repository.getCurrentUser()
-            val currentBitmap = if (preserveBitmap) _state.value.profileImageBitmap else null
-            _state.update {
-                it.copy(
-                    email = userInfo.email,
-                    badgeNumber = userInfo.badgeNumber,
-                    profilePictureUrl = userInfo.profilePicture ?: "",
-                    profileImageBitmap = currentBitmap ?: it.profileImageBitmap,
-                    isLoading = false
-                )
-            }
+
+            _state.update { it.copy(
+                email = userInfo.email,
+                badgeNumber = userInfo.badgeNumber,
+                profilePicture = repository.downloadProfilePicture(),
+                loading = false
+            )}
         }
     }
 

@@ -30,7 +30,7 @@ data class FriendsTable (
 class UserRepository(private val supabase: SupabaseClient) {
     suspend fun getCurrentUser(): User {
         val currentUser = supabase.auth.currentUserOrNull()?.id
-            ?: throw IllegalStateException("Utente non autenticato")
+            ?: throw IllegalStateException("No user currently signed in")
 
         return supabase.from("user_information")
             .select {
@@ -50,7 +50,7 @@ class UserRepository(private val supabase: SupabaseClient) {
     suspend fun uploadProfile(imageBytes: ByteArray) {
         val currentUser = supabase.auth.currentUserOrNull()?.id
             ?: supabase.auth.currentSessionOrNull()?.user?.id
-            ?: throw IllegalStateException("Utente non autenticato")
+            ?: throw IllegalStateException("No user currently signed in")
 
         val path = "$currentUser/profile.jpg"
 
@@ -92,15 +92,13 @@ class UserRepository(private val supabase: SupabaseClient) {
         }
     }
 
-    suspend fun downloadProfilePicture(url: String): Bitmap? {
-        return try {
-            val response: HttpResponse = supabase.httpClient.get(url)
-            val bytes = response.body<ByteArray>()
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+    suspend fun downloadProfilePicture(): Bitmap? {
+        val currentUser = getCurrentUser()
+
+        if (currentUser.profilePicture == null) return null
+
+        val imageBytes = supabase.storage.from("profile_pictures").downloadAuthenticated("${currentUser.id}/profile.jpg")
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 
     suspend fun joinEvent(eventID: Int) {
