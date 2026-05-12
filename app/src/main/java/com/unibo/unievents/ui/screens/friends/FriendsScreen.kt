@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -91,28 +92,37 @@ fun FriendsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (state.friends.count() == 0) {
+            if (state.loading) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxWidth()
-                )
-                {
-                    Text(
-                        text = "Non hai ancora aggiunto nessun amico",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                ) {
+                    CircularProgressIndicator()
                 }
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(state.friends) { user ->
-                        FriendCard(
-                            user = user,
-                            onRemove = { actions.removeFriend(user) }
+                if (state.friends.count() == 0) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    {
+                        Text(
+                            text = "Non hai ancora aggiunto nessun amico",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(state.friends) { user ->
+                            FriendCard(
+                                user = user,
+                                onRemove = { actions.removeFriend(user) }
+                            )
+                        }
                     }
                 }
             }

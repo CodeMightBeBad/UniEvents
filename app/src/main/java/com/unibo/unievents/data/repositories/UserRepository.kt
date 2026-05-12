@@ -34,12 +34,12 @@ class UserRepository(private val supabase: SupabaseClient) {
             .decodeSingle<User>()
     }
 
-    suspend fun getUserByEmail(email: String): User {
+    suspend fun getUserByEmail(email: String): User? {
         return supabase.from("user_information").select {
             filter {
                 eq("email", email)
             }
-        }.decodeSingle<User>()
+        }.decodeSingleOrNull()
     }
 
     suspend fun uploadProfile(imageBytes: ByteArray) {
@@ -122,12 +122,11 @@ class UserRepository(private val supabase: SupabaseClient) {
         }.decodeList<Event>()
     }
 
-    suspend fun sendRequest(friendEmail: String) {
+    suspend fun sendRequest(friendID: String) {
         val user = getCurrentUser().id
-        val friend = getUserByEmail(friendEmail).id
 
         supabase.from("user_friends").insert(
-            FriendsTable(user, friend, true)
+            FriendsTable(user, friendID, true)
         )
     }
 
@@ -214,5 +213,17 @@ class UserRepository(private val supabase: SupabaseClient) {
                 eq("user_id", friendID)
             }
         }
+    }
+
+    suspend fun isFriend(friendID: String): Boolean {
+        val currentUser = getCurrentUser().id
+
+        return !supabase.from("user_friends").select {
+            filter {
+                eq("user_id", currentUser)
+                eq("friend_id", friendID)
+                eq("pending", false)
+            }
+        }.decodeList<FriendsTable>().isEmpty()
     }
 }

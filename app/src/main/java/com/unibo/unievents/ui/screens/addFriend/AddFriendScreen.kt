@@ -54,13 +54,28 @@ fun AddFriendScreen(
                 value = state.userEmail,
                 label = { Text("Email") },
                 onValueChange = actions.updateEmail,
+                isError = state.userMailError,
                 trailingIcon = {
-                    IconButton(onClick = actions.sendRequest) {
+                    IconButton(
+                        onClick = actions.sendRequest,
+                        enabled = !state.loading && !state.userMailError
+                    ) {
                         Icon(Icons.Filled.Add, "Add friend")
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+
+            if (state.userMailError) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = state.emailError,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 

@@ -13,8 +13,10 @@ data class AddFriendState(
     val pendingRequests: List<User> = emptyList(),
 
     val userEmail: String = "",
+    val emailError: String = "",
 
     val loading: Boolean = false,
+    val userMailError: Boolean = false,
     val isEmailValid: Boolean = true
 )
 
@@ -29,11 +31,27 @@ class AddFriendViewModel(private val repository: UserRepository) : ViewModel() {
 
     val actions = AddFriendsActions(
         updateEmail = { email ->
+            if (state.value.userMailError) {
+                _state.update { it.copy(userMailError = false) }
+            }
+
             _state.update { it.copy(userEmail = email) }
         },
         sendRequest = {
             viewModelScope.launch {
-                repository.sendRequest(state.value.userEmail)
+                _state.update { it.copy(loading = true) }
+                val user = repository.getUserByEmail(state.value.userEmail)
+
+                if (user == null) {
+                   _state.update { it.copy(emailError = "User not found", userMailError = true) }
+                } else if (repository.isFriend(user.id)){
+                    _state.update { it.copy(emailError = "User is already in your friends list", userMailError = true) }
+                } else {
+                    repository.sendRequest(user.id)
+                    fetchData()
+                }
+
+                _state.update { it.copy(loading = false) }
             }
         }
     )
