@@ -362,17 +362,17 @@ fun ProfileScreen(
                                     }
                                 }
                             }
-                            Text("Foto Profilo", style = MaterialTheme.typography.labelLarge)
+                            OutlinedButton(
+                                onClick = { showImagePickerDialog = true },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.CameraAlt, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("CAMBIA FOTO PROFILO")
+                            }
                         }
 
-                        OutlinedButton(
-                            onClick = { showImagePickerDialog = true },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(Icons.Filled.CameraAlt, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("CAMBIA FOTO PROFILO")
-                        }
+
 
 
                         OutlinedTextField(
