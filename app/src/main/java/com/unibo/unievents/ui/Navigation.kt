@@ -13,10 +13,14 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.unibo.unievents.ui.screens.addFriend.AddFriendScreen
+import com.unibo.unievents.ui.screens.addFriend.AddFriendViewModel
 import com.unibo.unievents.ui.screens.board.BoardScreen
 import com.unibo.unievents.ui.screens.board.BoardViewModel
 import com.unibo.unievents.ui.screens.createEvent.CreateEventScreen
 import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
+import com.unibo.unievents.ui.screens.friends.FriendsScreen
+import com.unibo.unievents.ui.screens.friends.FriendsViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageScreen
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
@@ -46,6 +50,8 @@ sealed interface NavigationRoute {
     @Serializable data object AdminBoard : NavigationRoute
     @Serializable data object Research : NavigationRoute
     @Serializable data object Map : NavigationRoute
+    @Serializable data object Friends : NavigationRoute
+    @Serializable data object AddFriend : NavigationRoute
 }
 
 @Composable
@@ -154,6 +160,20 @@ fun NavGraph(navController: NavHostController) {
             val vm = koinViewModel<MapViewModel>()
 
             MapEventsScreen(navController, vm)
+        }
+
+        composable<NavigationRoute.Friends> {
+            val vm = koinViewModel<FriendsViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
+
+            FriendsScreen(state, vm.actions, navController)
+        }
+
+        composable<NavigationRoute.AddFriend> {
+            val vm = koinViewModel<AddFriendViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
+
+            AddFriendScreen(state, vm.actions, navController)
         }
     }
 }

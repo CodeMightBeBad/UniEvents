@@ -5,6 +5,7 @@ import com.unibo.unievents.data.User
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -13,6 +14,13 @@ import kotlinx.serialization.Serializable
 data class EventParticipation (
     @SerialName("user_id") val userID: String,
     @SerialName("event_id") val eventID: Int
+)
+
+@Serializable
+data class FriendsTable (
+    @SerialName("user_id") val userID: String,
+    @SerialName("friend_id") val friendID: String,
+    @SerialName("pending") val pending: Boolean
 )
 
 class UserRepository(private val supabase: SupabaseClient) {
@@ -24,6 +32,14 @@ class UserRepository(private val supabase: SupabaseClient) {
                 filter { eq("id", currentUser) }
             }
             .decodeSingle<User>()
+    }
+
+    suspend fun getUserByEmail(email: String): User {
+        return supabase.from("user_information").select {
+            filter {
+                eq("email", email)
+            }
+        }.decodeSingle<User>()
     }
 
     suspend fun uploadProfile(imageBytes: ByteArray) {
@@ -104,5 +120,99 @@ class UserRepository(private val supabase: SupabaseClient) {
                 eq("created_by", user)
             }
         }.decodeList<Event>()
+    }
+
+    suspend fun sendRequest(friendEmail: String) {
+        val user = getCurrentUser().id
+        val friend = getUserByEmail(friendEmail).id
+
+        supabase.from("user_friends").insert(
+            FriendsTable(user, friend, true)
+        )
+    }
+
+    suspend fun getFriends(): List<User> {
+        val user = getCurrentUser().id
+
+        return supabase.from("user_friends").select(
+            columns = Columns.raw("*, ...user_information!friend_id!inner(*)")
+        ) {
+            filter{
+                eq("user_id", user)
+                eq("pending", false)
+            }
+        }.decodeList<User>()
+    }
+
+    suspend fun getIncomingRequests(): List<User> {
+        val user = getCurrentUser().id
+
+        return supabase.from("user_friends").select(
+            columns = Columns.raw("*, ...user_information!user_id!inner(*)")
+        ) {
+            filter {
+                eq("friend_id", user)
+                eq("pending", true)
+            }
+        }.decodeList<User>()
+    }
+
+    suspend fun getPendingRequests(): List<User> {
+        val user = getCurrentUser().id
+
+        return supabase.from("user_friends").select(
+            columns = Columns.raw("*, ...user_information!friend_id!inner(*)")
+        ) {
+            filter {
+                eq("user_id", user)
+                eq("pending", true)
+            }
+        }.decodeList<User>()
+    }
+
+    suspend fun acceptFriendRequest(friendID: String) {
+        val currentUser = getCurrentUser().id
+
+        // Insert specular friendship record
+        supabase.from("user_friends").insert(FriendsTable(currentUser, friendID, false))
+
+        // Update the request record to reflect changes
+        supabase.from("user_friends").update(FriendsTable(friendID, currentUser, false)) {
+            filter {
+                eq("user_id", friendID)
+                eq("friend_id", currentUser)
+            }
+        }
+    }
+
+    suspend fun denyFriendRequest(friendID: String) {
+        val currentUser = getCurrentUser().id
+
+        supabase.from("user_friends").delete {
+            filter {
+                eq("user_id", friendID)
+                eq("friend_id", currentUser)
+            }
+        }
+    }
+
+    suspend fun removeFriend(friendID: String) {
+        val currentUser = getCurrentUser().id
+
+        // Removing the current user record
+        supabase.from("user_friends").delete {
+            filter {
+                eq("user_id", currentUser)
+                eq("friend_id", friendID)
+            }
+        }
+
+        // Removing the specular record for the other user
+        supabase.from("user_friends").delete {
+            filter {
+                eq("friend_id", currentUser)
+                eq("user_id", friendID)
+            }
+        }
     }
 }

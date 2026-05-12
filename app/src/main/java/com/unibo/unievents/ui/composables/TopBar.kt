@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -76,6 +77,15 @@ fun TopBar(
 
                         HorizontalDivider()
                     }
+
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(Icons.Filled.Person, "Friends") },
+                        text = { Text("Amici") },
+                        onClick = {
+                            menuExpanded = false
+                            navController.navigate(NavigationRoute.Friends)
+                        }
+                    )
 
                     DropdownMenuItem(
                         leadingIcon = {

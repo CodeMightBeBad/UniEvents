@@ -4,8 +4,10 @@ import com.unibo.unievents.data.OSMDataSource
 import com.unibo.unievents.data.repositories.AuthRepository
 import com.unibo.unievents.data.repositories.EventRepository
 import com.unibo.unievents.data.repositories.UserRepository
+import com.unibo.unievents.ui.screens.addFriend.AddFriendViewModel
 import com.unibo.unievents.ui.screens.board.BoardViewModel
 import com.unibo.unievents.ui.screens.createEvent.CreateEventViewModel
+import com.unibo.unievents.ui.screens.friends.FriendsViewModel
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginViewModel
 import com.unibo.unievents.ui.screens.map.MapViewModel
@@ -68,4 +70,6 @@ val AppModule = module {
     viewModel { BoardViewModel(get()) }
     viewModel { ResearchViewModel(get()) }
     viewModel { MapViewModel(get()) }
+    viewModel { FriendsViewModel(get()) }
+    viewModel { AddFriendViewModel(get()) }
 }
