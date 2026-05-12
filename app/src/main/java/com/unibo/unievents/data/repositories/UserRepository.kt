@@ -1,5 +1,7 @@
 package com.unibo.unievents.data.repositories
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.User
 import io.github.jan.supabase.SupabaseClient
@@ -9,6 +11,8 @@ import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
 
 @Serializable
 data class EventParticipation (
@@ -25,7 +29,8 @@ data class FriendsTable (
 
 class UserRepository(private val supabase: SupabaseClient) {
     suspend fun getCurrentUser(): User {
-        val currentUser = supabase.auth.currentUserOrNull()?.id!!
+        val currentUser = supabase.auth.currentUserOrNull()?.id
+            ?: throw IllegalStateException("Utente non autenticato")
 
         return supabase.from("user_information")
             .select {
@@ -43,7 +48,10 @@ class UserRepository(private val supabase: SupabaseClient) {
     }
 
     suspend fun uploadProfile(imageBytes: ByteArray) {
-        val currentUser = supabase.auth.currentUserOrNull()?.id!!
+        val currentUser = supabase.auth.currentUserOrNull()?.id
+            ?: supabase.auth.currentSessionOrNull()?.user?.id
+            ?: throw IllegalStateException("Utente non autenticato")
+
         val path = "$currentUser/profile.jpg"
 
         supabase.storage["profile_pictures"].upload(
@@ -81,6 +89,17 @@ class UserRepository(private val supabase: SupabaseClient) {
 
         supabase.from("user_information").update(newInfo) {
             filter { eq("id", currentInfo.id) }
+        }
+    }
+
+    suspend fun downloadProfilePicture(url: String): Bitmap? {
+        return try {
+            val response: HttpResponse = supabase.httpClient.get(url)
+            val bytes = response.body<ByteArray>()
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

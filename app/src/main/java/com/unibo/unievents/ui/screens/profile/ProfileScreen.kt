@@ -30,8 +30,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -44,6 +46,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +65,13 @@ import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
 import com.unibo.unievents.utils.rememberCameraLauncher
+import com.unibo.unievents.utils.rememberGalleryLauncher
 import com.unibo.unievents.utils.uriToBitmap
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 @Composable
 fun ProfileScreen(
@@ -74,9 +83,20 @@ fun ProfileScreen(
     var statsExpanded by remember { mutableStateOf(true) }
 
     val ctx = LocalContext.current
+    var showImagePickerDialog by remember { mutableStateOf(false) }
+
     val (picUri, takePicture) = rememberCameraLauncher(
         onPictureTaken = { uri ->
             val bitmap = uriToBitmap(uri, ctx.contentResolver)
+            actions.setProfileImage(bitmap)
+            actions.uploadImage(bitmap)
+        }
+    )
+
+    val pickFromGallery = rememberGalleryLauncher(
+        onImagePicked = { uri ->
+            val bitmap = uriToBitmap(uri, ctx.contentResolver)
+            actions.setProfileImage(bitmap)
             actions.uploadImage(bitmap)
         }
     )
@@ -109,12 +129,24 @@ fun ProfileScreen(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = "Av",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
+                                    when {
+                                        state.profileImageBitmap != null -> {
+                                            Image(
+                                                bitmap = state.profileImageBitmap!!.asImageBitmap(),
+                                                contentDescription = "Foto profilo",
+                                                modifier = Modifier.size(56.dp).clip(CircleShape),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
+                                        else -> {
+                                            Text(
+                                                text = state.email.take(2).uppercase(),
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
+                                    }
                                 }
                             }
                             Column {
@@ -274,16 +306,74 @@ fun ProfileScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text("Foto Profilo", style = MaterialTheme.typography.labelLarge)
+                        if (showImagePickerDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showImagePickerDialog = false },
+                                title = { Text("Cambia foto profilo") },
+                                text = { Text("Scegli da dove vuoi caricare la foto") },
+                                confirmButton = {
+                                    TextButton (onClick = {
+                                        showImagePickerDialog = false
+                                        takePicture()
+                                    }) {
+                                        Icon(Icons.Filled.CameraAlt, contentDescription = null)
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("Fotocamera")
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = {
+                                        showImagePickerDialog = false
+                                        pickFromGallery()
+                                    }) {
+                                        Icon(Icons.Filled.Photo, contentDescription = null)
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("Galleria")
+                                    }
+                                }
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(56.dp),
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    if (state.profileImageBitmap != null) {
+                                        Image(
+                                            bitmap = state.profileImageBitmap!!.asImageBitmap(),
+                                            contentDescription = "Foto profilo",
+                                            modifier = Modifier
+                                                .size(56.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Text(
+                                            text = state.email.take(2).uppercase(),
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                }
+                            }
+                            Text("Foto Profilo", style = MaterialTheme.typography.labelLarge)
+                        }
 
                         OutlinedButton(
-                            onClick = takePicture,
+                            onClick = { showImagePickerDialog = true },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Filled.CameraAlt, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("CAMBIA FOTO PROFILO")
                         }
+
 
                         OutlinedTextField(
                             value = state.badgeNumber,

@@ -16,7 +16,9 @@ fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
         }
         else -> {
             val source = ImageDecoder.createSource(contentResolver, imageUri)
-            ImageDecoder.decodeBitmap(source)
+            ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+            }
         }
     }
     return bitmap

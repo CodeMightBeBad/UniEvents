@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
@@ -36,4 +37,18 @@ fun rememberCameraLauncher(
     }
 
     return pictureUri to takePicture
+}
+
+@Composable
+fun rememberGalleryLauncher(
+    onImagePicked: (Uri) -> Unit = {}
+): () -> Unit {
+    val currentOnImagePicked = rememberUpdatedState(onImagePicked)
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { currentOnImagePicked.value(it) }
+    }
+    return { launcher.launch("image/*") }
 }
