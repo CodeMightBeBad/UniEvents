@@ -22,7 +22,8 @@ data class AddFriendState(
 
 data class AddFriendsActions(
     val updateEmail: (String) -> Unit,
-    val sendRequest: () -> Unit
+    val sendRequest: () -> Unit,
+    val removeRequest: (String) -> Unit
 )
 
 class AddFriendViewModel(private val repository: UserRepository) : ViewModel() {
@@ -52,6 +53,14 @@ class AddFriendViewModel(private val repository: UserRepository) : ViewModel() {
                 }
 
                 _state.update { it.copy(loading = false) }
+            }
+        },
+        removeRequest = { userID ->
+            viewModelScope.launch {
+                _state.update { it.copy(loading = true) }
+
+                repository.removeFriend(userID)
+                fetchData()
             }
         }
     )
