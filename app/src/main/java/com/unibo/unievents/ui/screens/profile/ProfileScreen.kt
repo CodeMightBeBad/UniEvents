@@ -126,7 +126,7 @@ fun ProfileScreen(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    if (state.profilePicture == null) {
+                                    if (state.profilePicture == null || state.loading) {
                                         Icon(Icons.Filled.Person, "User placeholder")
                                     } else {
                                         Image(
@@ -139,12 +139,12 @@ fun ProfileScreen(
                             }
                             Column {
                                 Text(
-                                    text = state.email,
+                                    text = if (state.loading) "..." else state.email,
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Text(
-                                    text = "Matricola: ${state.badgeNumber}",
+                                    text = "Matricola: ${if (state.loading) "..." else state.badgeNumber}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
@@ -330,14 +330,14 @@ fun ProfileScreen(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    if (state.profilePicture != null && !state.loading) {
+                                    if (state.profilePicture == null || state.loading) {
+                                        Icon(Icons.Filled.Person, "User placeholder")
+                                    } else {
                                         Image(
                                             bitmap = state.profilePicture.asImageBitmap(),
                                             contentDescription = "Foto profilo",
                                             contentScale = ContentScale.Crop
                                         )
-                                    } else {
-                                        Icon(Icons.Filled.Person, "User placeholder")
                                     }
                                 }
                             }

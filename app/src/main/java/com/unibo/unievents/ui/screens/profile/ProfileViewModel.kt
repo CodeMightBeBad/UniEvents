@@ -16,6 +16,7 @@ data class ProfileState(
     val profilePicture: Bitmap? = null,
     val oldPassword: String = "",
     val newPassword: String = "",
+
     val loading: Boolean = false
 )
 
@@ -38,15 +39,14 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
         },
         setProfilePicture = { bitmap ->
             viewModelScope.launch {
-                _state.update { it.copy(loading = true) }
-                repository.uploadProfile(bitmapToByteArray(bitmap))
-
                 _state.update { it.copy(
-                    profilePicture = repository.downloadProfilePicture(),
-                    loading = false
+                    profilePicture = bitmap,
+                    loading = true
                 )}
 
-                fetchInformation()
+                repository.uploadProfile(bitmapToByteArray(bitmap))
+
+                _state.update { it.copy(loading = false) }
             }
         }
     )
