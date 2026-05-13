@@ -62,7 +62,8 @@ fun EventCard(
     var showDetails by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -101,7 +102,7 @@ fun EventCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Business, contentDescription = "Venue", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "Laboratorio Informatica")
+                        Text(text = event.address)
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -109,7 +110,7 @@ fun EventCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.Schedule, contentDescription = "Time", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = event.date.toString())
+                        Text(text = event.time.toString())
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -117,7 +118,7 @@ fun EventCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.PeopleAlt, contentDescription = "Partecipants", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "3/60")
+                        Text(text = event.maxParticipants.toString())
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
