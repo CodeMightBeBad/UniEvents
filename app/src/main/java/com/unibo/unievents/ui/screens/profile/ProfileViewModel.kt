@@ -17,6 +17,10 @@ data class ProfileState(
     val oldPassword: String = "",
     val newPassword: String = "",
 
+    val createdEvents: Int = 0,
+    val joinedEvents: Int = 0,
+    val friends: Int = 0,
+
     val loading: Boolean = false
 )
 
@@ -56,10 +60,17 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
             _state.update { it.copy(loading = true) }
             val userInfo = repository.getCurrentUser()
 
+            val createdEvents = repository.getOwnEvents().size
+            val joinedEvents = repository.getJoinedEvents().size
+            val friends = repository.getFriends().size
+
             _state.update { it.copy(
                 email = userInfo.email,
                 badgeNumber = userInfo.badgeNumber,
                 profilePicture = repository.downloadProfilePicture(),
+                createdEvents = createdEvents,
+                joinedEvents = joinedEvents,
+                friends = friends,
                 loading = false
             )}
         }

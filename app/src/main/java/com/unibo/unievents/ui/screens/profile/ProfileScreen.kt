@@ -69,7 +69,6 @@ import com.unibo.unievents.utils.uriToBitmap
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
 import com.unibo.unievents.ui.composables.TopBar
 
 @Composable
@@ -245,13 +244,13 @@ fun ProfileScreen(
                                     StatCard(
                                         modifier = Modifier.weight(1f),
                                         icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = null) },
-                                        value = "0",
+                                        value = state.joinedEvents.toString(),
                                         label = "Eventi Partecipati"
                                     )
                                     StatCard(
                                         modifier = Modifier.weight(1f),
                                         icon = { Icon(Icons.Filled.EmojiEvents, contentDescription = null) },
-                                        value = "0",
+                                        value = state.createdEvents.toString(),
                                         label = "Eventi Creati"
                                     )
                                 }
@@ -263,7 +262,7 @@ fun ProfileScreen(
                                     StatCard(
                                         modifier = Modifier.weight(1f),
                                         icon = { Icon(Icons.Filled.Person, contentDescription = null) },
-                                        value = "0",
+                                        value = state.friends.toString(),
                                         label = "Utenti Seguiti"
                                     )
                                     StatCard(
@@ -362,7 +361,7 @@ fun ProfileScreen(
                         )
 
                         OutlinedTextField(
-                            value = "mario.rossi@studio.unibo.it",
+                            value = state.email,
                             leadingIcon = { Icon(Icons.Filled.MailOutline, contentDescription = null) },
                             label = { Text("Email") },
                             onValueChange = {},

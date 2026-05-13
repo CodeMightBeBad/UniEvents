@@ -139,6 +139,18 @@ class UserRepository(private val supabase: SupabaseClient) {
         }.decodeList<Event>()
     }
 
+    suspend fun getJoinedEvents(): List<Event> {
+        val user = getCurrentUser().id
+
+        return supabase.from("participations").select(
+            columns = Columns.raw("*, ...events!event_id!inner(*)")
+        ) {
+            filter {
+                eq("user_id", user)
+            }
+        }.decodeList<Event>()
+    }
+
     suspend fun sendRequest(friendID: String) {
         val user = getCurrentUser().id
 
