@@ -54,14 +54,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.foundation.layout.PaddingValues
 
 @Composable
-fun EventCard(event: Event) {
-
+fun EventCard(
+    event: Event,
+    isJoined: Boolean,
+    onButtonPress: () -> Unit
+) {
     var showDetails by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -126,39 +130,47 @@ fun EventCard(event: Event) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        OutlinedButton(
+                        Button(
+                            onClick = onButtonPress,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Icon(
+                                Icons.Filled.Person,
+                                contentDescription = "Participate"
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(if (isJoined) "ABBANDONA" else "PARTECIPA")
+                        }
+
+                        Button (
                             onClick = { showDetails = true },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.secondary
                             )
                         ) {
                             Icon(Icons.Default.Info, contentDescription = "More Info", modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("MAGGIORI INFO")
+                            Text("INFO")
                         }
 
                         // Bottom sheet con i dettagli
-
                         if (showDetails) {
                             EventDetailSheet(
                                 event = event,
+                                isJoined = isJoined,
+                                onButtonPress = onButtonPress,
                                 onDismiss = { showDetails = false }
                             )
-                        }
-
-                        Button(
-                            onClick = { },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        ) {
-                            Icon(Icons.Filled.Person, contentDescription = "Participate", modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("PARTECIPA")
                         }
                     }
                 }
@@ -170,6 +182,8 @@ fun EventCard(event: Event) {
 @Composable
 fun EventDetailSheet(
     event: Event,
+    isJoined: Boolean,
+    onButtonPress: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -249,30 +263,34 @@ fun EventDetailSheet(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = { shareEvent(context, event) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp)
-                    ) {
-                        Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("CONDIVIDI")
-                    }
-
                     Button(
-                        onClick = { },
+                        onClick = onButtonPress,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     ) {
-                        Icon(Icons.Filled.Person, contentDescription = "Participate", modifier = Modifier.size(18.dp))
+                        Icon(Icons.Filled.Person, contentDescription = "Participate")
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("PARTECIPA")
+                        Text(if (isJoined) "ABBANDONA" else "PARTECIPA")
+                    }
+
+                    Button(
+                        onClick = { shareEvent(context, event) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = "Share")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("CONDIVIDI")
                     }
                 }
             }

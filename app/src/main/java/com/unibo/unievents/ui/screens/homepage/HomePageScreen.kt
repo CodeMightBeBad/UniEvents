@@ -30,6 +30,7 @@ import com.unibo.unievents.ui.composables.TopBar
 @Composable
 fun HomePageScreen(
     state: HomePageState,
+    actions: HomePageActions,
     navController: NavHostController
 ) {
     if (state.loading) {
@@ -69,7 +70,11 @@ fun HomePageScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(state.events) {
-                    EventCard(it)
+                    EventCard(
+                        event = it,
+                        onButtonPress = { if (actions.isEventJoined(it.id)) actions.leaveEvent(it.id) else actions.joinEvent(it.id) },
+                        isJoined = actions.isEventJoined(it.id)
+                    )
                 }
             }
         }

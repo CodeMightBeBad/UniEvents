@@ -65,7 +65,7 @@ val AppModule = module {
     viewModel { RegistrationViewModel(get()) }
     viewModel { LoginViewModel(get()) }
     viewModel { ProfileViewModel(get()) }
-    viewModel { HomePageViewModel(get()) }
+    viewModel { HomePageViewModel(get(), get()) }
     viewModel { CreateEventViewModel(get(), get()) }
     viewModel { BoardViewModel(get()) }
     viewModel { ResearchViewModel(get()) }

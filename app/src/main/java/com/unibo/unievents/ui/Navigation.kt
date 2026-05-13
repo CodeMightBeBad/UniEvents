@@ -126,7 +126,7 @@ fun NavGraph(navController: NavHostController) {
             val vm = koinViewModel<HomePageViewModel>()
             val state by vm.state.collectAsStateWithLifecycle()
 
-            HomePageScreen(state, navController)
+            HomePageScreen(state, vm.actions, navController)
         }
 
         composable<NavigationRoute.Profile> {
