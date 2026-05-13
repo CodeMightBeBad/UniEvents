@@ -77,23 +77,14 @@ class HomePageViewModel(
         viewModelScope.launch {
             val selectedDate = _state.value.selectedDate
 
-            // Debug: stampa la data selezionata
-            println("Selected date: $selectedDate")
-
             val allApprovedEvents = eventsRepo.getApprovedEvents()
 
-            // Debug: stampa tutte le date degli eventi
-            allApprovedEvents.forEach { event ->
-                println("Event: ${event.title}, Date: ${event.date}")
-            }
-
             val eventList = allApprovedEvents.filter { event ->
-                // Confronto esplicito
+
                 val isSameDate = event.date.year == selectedDate.year &&
                         event.date.monthNumber == selectedDate.monthNumber &&
                         event.date.dayOfMonth == selectedDate.dayOfMonth
 
-                println("Event ${event.title}: event.date=$event.date, selected=$selectedDate, match=$isSameDate")
                 isSameDate
             }
 
@@ -106,8 +97,6 @@ class HomePageViewModel(
                     loading = false
                 )
             }
-
-            println("Found ${eventList.size} events for $selectedDate")
         }
     }
 
