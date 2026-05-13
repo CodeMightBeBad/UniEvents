@@ -125,7 +125,7 @@ fun ProfileScreen(
                                 color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    if (state.profilePicture == null || state.loading) {
+                                    if (state.profilePicture == null || state.loadingImage) {
                                         Icon(Icons.Filled.Person, "User placeholder")
                                     } else {
                                         Image(

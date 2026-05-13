@@ -21,6 +21,7 @@ data class ProfileState(
     val joinedEvents: Int = 0,
     val friends: Int = 0,
 
+    val loadingImage: Boolean = false,
     val loading: Boolean = false
 )
 
@@ -45,12 +46,12 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
             viewModelScope.launch {
                 _state.update { it.copy(
                     profilePicture = bitmap,
-                    loading = true
+                    loadingImage = true
                 )}
 
                 repository.uploadProfile(bitmapToByteArray(bitmap))
 
-                _state.update { it.copy(loading = false) }
+                _state.update { it.copy(loadingImage = false) }
             }
         }
     )
@@ -67,11 +68,18 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
             _state.update { it.copy(
                 email = userInfo.email,
                 badgeNumber = userInfo.badgeNumber,
-                profilePicture = repository.downloadProfilePicture(),
                 createdEvents = createdEvents,
                 joinedEvents = joinedEvents,
                 friends = friends,
                 loading = false
+            )}
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(loadingImage = true) }
+            _state.update { it.copy(
+                profilePicture = repository.downloadProfilePicture(),
+                loadingImage = false
             )}
         }
     }
