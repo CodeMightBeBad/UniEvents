@@ -18,7 +18,7 @@ lifecycleCommonJava8 = "2.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 composeBom = "2024.09.00"
-materialIconsExtended = "1.6.8"
+materialIconsExtended = "1.7.8"
 navigationCompose = "2.9.7"
 osmdroidAndroid = "6.1.20"
 osmdroidAndroidVersion = "6.1.17"
@@ -26,6 +26,7 @@ playServicesLocation = "21.3.0"
 playServicesLocationVersion = "21.0.1"
 playServicesMaps = "19.0.0"
 preference = "1.2.1"
+material3 = "1.4.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -65,6 +66,7 @@ play-services-location-v2101 = { module = "com.google.android.gms:play-services-
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,368 +1,331 @@
 package com.unibo.unievents.ui.screens.createEvent
 
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Abc
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Title
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.navigation.NavHostController
-import com.unibo.unievents.ui.composables.TopBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
+import androidx.navigation.NavHostController
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.launch
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusProperties
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.unibo.unievents.ui.composables.TopBar
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
     state: CreateEventState,
     actions: CreateEventActions,
     navController: NavHostController
 ) {
-    var addressSearchDebounce by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
-    val scope = rememberCoroutineScope()
-    val focusRequester = remember { FocusRequester() }
-    var addressTextFieldValue by remember { mutableStateOf(TextFieldValue(state.address)) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.address) {
-        if (addressTextFieldValue.text != state.address) {
-            addressTextFieldValue = TextFieldValue(state.address, selection = TextRange(state.address.length))
-        }
+    if (showDatePicker) {
+        DatePickerModal(
+            onDateSelected = { dateMillis ->
+                actions.updateDate(convertMillsToDate(dateMillis))
+            },
+            onDismiss = {
+                showDatePicker = false
+            }
+        )
+    }
+
+    if (showTimePicker) {
+        TimePickerModal(
+            onTimeSelected = { hours, minutes ->
+                actions.updateTime(formatTime(hours, minutes))
+            },
+            onDismiss = { showTimePicker = false }
+        )
     }
 
     Scaffold(
-        topBar = {
-            TopBar(navController, "Crea un Evento")
+        topBar = { TopBar(navController, "Crea evento") },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            ) {
+                Icon(Icons.Filled.Check, "Confirm")
+            }
         },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
+        containerColor = MaterialTheme.colorScheme.surface
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(innerPadding)
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
+            // Warning card
             Card(
-                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             ) {
-                Text(
-                    text = "Il tuo evento verrà revisionato da un amministratore prima di essere pubblicato",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = "Il tuo evento verrà revisionato da un amministratore prima di essere pubblicato",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
-            Text(
-                text = "Immagini Evento",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            OutlinedButton(
-                onClick = { },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("AGGIUNGI FOTO")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                leadingIcon = {
-                    Icon(Icons.Filled.Title, "titolo")
-                },
-                label = { Text("Inserisci il titolo*") },
-                value = state.title,
-                onValueChange = actions.updateTitle,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = addressTextFieldValue,
-                onValueChange = { newValue ->
-                    addressTextFieldValue = newValue
-                    actions.updateAddress(newValue.text)
-
-                    addressSearchDebounce?.cancel()
-                    addressSearchDebounce = scope.launch {
-                        kotlinx.coroutines.delay(300)
-                        actions.searchAddress(newValue.text)
-                    }
-                },
-                leadingIcon = {
-                    Icon(Icons.Filled.Place, "indirizzo")
-                },
-                label = { Text("Indirizzo*") },
+            // Main information column
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester),
-                shape = RoundedCornerShape(12.dp),
-                trailingIcon = {
-                    if (state.isAddressLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                    }
-                }
-            )
+                    .padding(10.dp)
+            ) {
+                Text(
+                    text = "Informazioni:",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
 
-            if (state.addressSuggestions.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OutlinedTextField(
+                    value = state.title,
+                    onValueChange = actions.updateTitle,
+                    label = { Text("Titolo dell'evento") },
+                    leadingIcon = { Icon(Icons.Filled.Title, "Title") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Dropdown menu to fill the address
+                ExposedDropdownMenuBox(
+                    expanded = state.showAddressSuggestions,
+                    onExpandedChange = actions.updateShowSuggestions
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
+                    OutlinedTextField(
+                        value = state.address,
+                        onValueChange = actions.updateAddress,
+                        label = { Text("Indirizzo") },
+                        leadingIcon = { Icon(Icons.Outlined.LocationOn, "Location") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = !state.addressSuggestions.isEmpty() && state.showAddressSuggestions,
+                        onDismissRequest = { actions.updateShowSuggestions(false) }
                     ) {
-                        state.addressSuggestions.forEach { suggestion ->
-                            TextButton(
+                        state.addressSuggestions.forEach { address ->
+                            DropdownMenuItem(
+                                text = { Text(address.name) },
                                 onClick = {
-                                    addressTextFieldValue = TextFieldValue(suggestion.displayName, selection = TextRange(suggestion.displayName.length))
-                                    actions.selectAddress(suggestion.displayName)
-                                    focusRequester.requestFocus()
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = suggestion.displayName,
-                                    modifier = Modifier.padding(12.dp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            if (suggestion != state.addressSuggestions.last()) {
-                                HorizontalDivider()
-                            }
+                                    actions.updateAddress(address.name)
+                                    actions.updateShowSuggestions(false)
+                                }
+                            )
                         }
                     }
                 }
-            }
 
-            OutlinedTextField(
-                leadingIcon = {
-                    Icon(Icons.Filled.Abc, "descrizione")
-                },
-                label = { Text("Descrivi il tuo evento") },
-                value = state.description,
-                onValueChange = actions.updateDescription,
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 4,
-                maxLines = 6,
-                shape = RoundedCornerShape(12.dp)
-            )
+                Spacer(modifier = Modifier.height(4.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                OutlinedTextField(
+                    value = state.description,
+                    onValueChange = actions.updateDescription,
+                    label = { Text("Descrizione") },
+                    leadingIcon = { Icon(Icons.Outlined.Description, "Description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
-                        leadingIcon = { Icon(Icons.Filled.DateRange, "data") },
-                        label = { Text("Data*") },
                         value = state.date,
-                        onValueChange = { newValue ->
-                            val digits = newValue.filter { it.isDigit() }
-                            if (digits.length <= 8) {
-                                actions.updateDate(digits)
-                                actions.setDateError(null)
+                        onValueChange = actions.updateDate,
+                        label = { Text("Data") },
+                        leadingIcon = {
+                            IconButton(onClick = { showDatePicker = true }) {
+                                Icon(Icons.Outlined.Event, "Event date")
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        placeholder = { Text("gg/mm/aaaa") },
-                        isError = state.dateError != null,
-                        supportingText = {
-                            if (state.dateError != null) {
-                                Text(
-                                    text = state.dateError,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        },
-                        visualTransformation = { text ->
-                            val digits = text.text.filter { it.isDigit() }
-                            val formatted = when (digits.length) {
-                                0 -> ""
-                                1, 2 -> digits
-                                3, 4 -> "${digits.take(2)}/${digits.drop(2)}"
-                                else -> "${digits.take(2)}/${digits.substring(2, 4)}/${digits.drop(4)}"
-                            }
-                            TransformedText(
-                                text = androidx.compose.ui.text.AnnotatedString(formatted),
-                                offsetMapping = object : OffsetMapping {
-                                    override fun originalToTransformed(offset: Int): Int {
-                                        if (offset == 0) return 0
-                                        return when (offset) {
-                                            1, 2 -> offset
-                                            3, 4 -> offset + 1
-                                            else -> offset + 2
-                                        }.coerceIn(0, formatted.length)
-                                    }
-                                    override fun transformedToOriginal(offset: Int): Int {
-                                        if (offset == 0) return 0
-                                        return when (offset) {
-                                            1, 2 -> offset
-                                            3, 4 -> offset - 1
-                                            else -> offset - 2
-                                        }.coerceIn(0, text.text.length)
-                                    }
-                                }
-                            )
-                        }
+                        readOnly = true,
+                        modifier = Modifier.weight(1f)
                     )
-                }
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
                     OutlinedTextField(
-                        leadingIcon = { Icon(Icons.Filled.AccessTime, "ora") },
-                        label = { Text("Ora*") },
                         value = state.time,
-                        onValueChange = { newValue ->
-                            val digits = newValue.filter { it.isDigit() }
-                            if (digits.length <= 4) {
-                                actions.updateTime(digits)
-                                actions.setDateError(null)
+                        onValueChange = actions.updateTime,
+                        label = { Text("Ora") },
+                        leadingIcon = {
+                            IconButton(onClick = { showTimePicker = true }) {
+                                Icon(Icons.Outlined.AccessTime, "Event time")
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        placeholder = { Text("hh:mm") },
-                        isError = state.dateError != null,
-                        visualTransformation = { text ->
-                            val digits = text.text.filter { it.isDigit() }
-                            val formatted = when (digits.length) {
-                                0 -> ""
-                                1, 2 -> digits
-                                else -> "${digits.take(2)}:${digits.drop(2)}"
-                            }
-                            TransformedText(
-                                text = androidx.compose.ui.text.AnnotatedString(formatted),
-                                offsetMapping = object : OffsetMapping {
-                                    override fun originalToTransformed(offset: Int): Int {
-                                        if (offset == 0) return 0
-                                        return if (offset <= 2) offset else offset + 1
-                                    }
-                                    override fun transformedToOriginal(offset: Int): Int {
-                                        if (offset == 0) return 0
-                                        return if (offset <= 2) offset else offset - 1
-                                    }
-                                }
-                            )
-                        }
+                        readOnly = true,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
 
-            OutlinedTextField(
-                leadingIcon = {
-                    Icon(Icons.Filled.Person, "persone")
-                },
-                label = { Text("Numero massimo partecipanti*") },
-                value = state.maxParticipants.toString(),
-                onValueChange = actions.updateMaxParticipants,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // Photos column
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
             ) {
-                Button(
-                    onClick = actions.submit,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = state.title.isNotBlank() &&
-                            state.date.length == 8 &&
-                            state.time.length == 4 &&
-                            state.address.isNotBlank() &&
-                            (state.maxParticipants ?: 0) > 0
-                ) {
-                    Text("RICHIEDI PUBBLICAZIONE")
-                }
+                Text(
+                    text = "Immagini:",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
 
-                OutlinedButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
                 ) {
-                    Text("ANNULLA")
-                    (state.maxParticipants ?: 0) > 0
+                    Text(
+                        text = "Non sono ancora state aggiunte immagini",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDateSelected(datePickerState.selectedDateMillis!!)
+                    onDismiss()
+                },
+                enabled = datePickerState.selectedDateMillis != null
+            ) {
+                Text("Ok")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annulla")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerModal(
+    onTimeSelected: (Int, Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val timePickerState = rememberTimePickerState(is24Hour = true)
+
+    TimePickerDialog(
+        title = { Text("Scegli l'ora") },
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton( onClick = {
+                    onTimeSelected(timePickerState.hour, timePickerState.minute)
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("ANNULLA")
+            }
+        }
+    ) {
+        TimePicker(timePickerState)
+    }
+}
+
+private fun convertMillsToDate(millis: Long): String {
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
+}
+
+private fun formatTime(hours: Int, minutes: Int): String {
+    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val calendar = Calendar.getInstance()
+
+    calendar.clear()
+    calendar.set(Calendar.HOUR_OF_DAY, hours)
+    calendar.set(Calendar.MINUTE, minutes)
+
+    return formatter.format(calendar.time)
 }

@@ -1,6 +1,6 @@
 package com.unibo.unievents
 
-import com.unibo.unievents.data.OSMDataSource
+import com.unibo.unievents.data.repositories.MapRepository
 import com.unibo.unievents.data.repositories.AuthRepository
 import com.unibo.unievents.data.repositories.EventRepository
 import com.unibo.unievents.data.repositories.UserRepository
@@ -45,7 +45,7 @@ val AppModule = module {
         }
     }
 
-    single { OSMDataSource(get()) }
+    single { MapRepository(get()) }
 
     single<SupabaseClient> {
         createSupabaseClient(
