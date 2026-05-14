@@ -48,41 +48,6 @@ class UserRepository(private val supabase: SupabaseClient) {
         }.decodeSingleOrNull()
     }
 
-    suspend fun uploadProfile(imageBytes: ByteArray) {
-        val currentUser = supabase.auth.currentUserOrNull()?.id
-            ?: supabase.auth.currentSessionOrNull()?.user?.id
-            ?: throw IllegalStateException("No user currently signed in")
-
-        val path = "$currentUser/profile.jpg"
-
-        // Upload
-        supabase.storage["profile_pictures"].upload(
-            path = path,
-            data = imageBytes
-        ) { upsert = true }
-
-        // Ottieni URL pubblico
-        val pictureUrl = supabase.storage["profile_pictures"].publicUrl(path)
-
-        Log.d("UserRepo", "Picture URL: $pictureUrl")
-
-        // Aggiorna nel database
-        updateProfilePic(pictureUrl)
-    }
-
-    suspend fun updateProfilePic(profilePicture: String) {
-        val currentInfo = getCurrentUser()
-        val newInfo = currentInfo.copy(profilePicture = profilePicture)
-
-        Log.d("UserRepo", "Updating profile picture URL in DB: $profilePicture")
-
-        supabase.from("user_information").update(newInfo) {
-            filter { eq("id", currentInfo.id) }
-        }
-
-        Log.d("UserRepo", "Update completed")
-    }
-
     suspend fun updateUserInformation(
         badgeNumber: String? = null,
         score: Int? = null,
@@ -90,10 +55,9 @@ class UserRepository(private val supabase: SupabaseClient) {
     ) {
         val currentInfo = getCurrentUser()
 
-        val newInfo = User(
+        val newInfo = currentInfo.copy(
             id = currentInfo.id,
             badgeNumber = badgeNumber ?: currentInfo.badgeNumber,
-            profilePicture = currentInfo.profilePicture,
             score = score ?: currentInfo.score,
             email = email ?: currentInfo.email
         )
@@ -103,18 +67,28 @@ class UserRepository(private val supabase: SupabaseClient) {
         }
     }
 
-    suspend fun updateProfilePicture(profilePicture: String) {
-        val currentInfo = getCurrentUser()
-        val newInfo = currentInfo.copy(profilePicture = profilePicture)
+    suspend fun uploadProfilePicture(imageBytes: ByteArray) {
+        val currentUser = getCurrentUser()
+        val path = "${currentUser.id}/profile.jpg"
 
-        supabase.from("user_information").update(newInfo) {
-            filter { eq("id", currentInfo.id) }
+        // Upload the picture to the database
+        supabase.storage["profile_pictures"].upload(
+            path = path,
+            data = imageBytes
+        ) { upsert = true }
+
+        // Update the record that points to the picture
+        val picUrl = supabase.storage["profile_pictures"].publicUrl(path)
+
+        supabase.from("user_information").update(currentUser.copy(profilePicture = picUrl)) {
+            filter {
+                eq("id", currentUser.id)
+            }
         }
     }
 
     suspend fun downloadProfilePicture(): Bitmap? {
         val currentUser = getCurrentUser()
-
         if (currentUser.profilePicture == null) return null
 
         val imageBytes = supabase.storage.from("profile_pictures").downloadAuthenticated("${currentUser.id}/profile.jpg")
