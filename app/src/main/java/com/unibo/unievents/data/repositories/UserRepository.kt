@@ -2,6 +2,7 @@ package com.unibo.unievents.data.repositories
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.User
 import io.github.jan.supabase.SupabaseClient
@@ -54,13 +55,32 @@ class UserRepository(private val supabase: SupabaseClient) {
 
         val path = "$currentUser/profile.jpg"
 
+        // Upload
         supabase.storage["profile_pictures"].upload(
             path = path,
             data = imageBytes
         ) { upsert = true }
 
+        // Ottieni URL pubblico
         val pictureUrl = supabase.storage["profile_pictures"].publicUrl(path)
-        updateProfilePicture(pictureUrl)
+
+        Log.d("UserRepo", "Picture URL: $pictureUrl")
+
+        // Aggiorna nel database
+        updateProfilePic(pictureUrl)
+    }
+
+    suspend fun updateProfilePic(profilePicture: String) {
+        val currentInfo = getCurrentUser()
+        val newInfo = currentInfo.copy(profilePicture = profilePicture)
+
+        Log.d("UserRepo", "Updating profile picture URL in DB: $profilePicture")
+
+        supabase.from("user_information").update(newInfo) {
+            filter { eq("id", currentInfo.id) }
+        }
+
+        Log.d("UserRepo", "Update completed")
     }
 
     suspend fun updateUserInformation(
