@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,15 +32,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.NavigationRoute
+import com.unibo.unievents.ui.screens.login.DialogSection
 
 @Composable
 fun RegistrationScreen(
@@ -47,6 +54,9 @@ fun RegistrationScreen(
     actions: RegistrationActions,
     navController: NavHostController
 ) {
+    var showPrivacyDialog by remember { mutableStateOf(false) }
+    var showTerminiDialog by remember { mutableStateOf(false) }
+    var showContattiDialog by remember { mutableStateOf(false) }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -84,6 +94,7 @@ fun RegistrationScreen(
                         text = "La piattaforma per scoprire e partecipare agli eventi universitari dell'Università di Bologna",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
 
@@ -217,12 +228,95 @@ fun RegistrationScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (showPrivacyDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showPrivacyDialog = false },
+                        title = { Text("Informativa sulla Privacy") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                DialogSection(
+                                    title = "Dati raccolti",
+                                    body = "Raccogliamo email, nome e le partecipazione agli eventi per personalizzare la tua esperienza su Uni Events."
+                                )
+                                DialogSection(
+                                    title = "Utilizzo dei dati",
+                                    body = "I tuoi dati non vengono mai ceduti a terzi. Sono utilizzati esclusivamente per il funzionamento della piattaforma."
+                                )
+                                DialogSection(
+                                    title = "I tuoi diritti",
+                                    body = "Puoi richiedere la cancellazione del tuo account e di tutti i dati associati in qualsiasi momento."
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = { showPrivacyDialog = false }) {
+                                Text("Chiudi")
+                            }
+                        }
+                    )
+                }
+
+                if (showTerminiDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showTerminiDialog = false },
+                        title = { Text("Termini di Utilizzo") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                DialogSection(
+                                    title = "Accesso alla piattaforma",
+                                    body = "Uni Events è riservato esclusivamente agli studenti e al personale dell'Università di Bologna."
+                                )
+                                DialogSection(
+                                    title = "Comportamento degli utenti",
+                                    body = "È vietato pubblicare contenuti inappropriati, diffondere materiale protetto da copyright o utilizzare la piattaforma per attività commerciali non autorizzate.."
+                                )
+                                DialogSection(
+                                    title = "Modifiche ai termini",
+                                    body = "L'università si riserva il diritto di aggiornare i termini con preavviso di 14 giorni via email."
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = { showTerminiDialog = false }) {
+                                Text("Chiudi")
+                            }
+                        }
+                    )
+                }
+
+                if (showContattiDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showContattiDialog = false },
+                        title = { Text("Contattaci") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                DialogSection(
+                                    title = "Supporto tecnico",
+                                    body = "Per problemi con l'app scrivi a: matteo.crepaldi4@studio.unibo.it"
+                                )
+                                DialogSection(
+                                    title = "Segnalazioni",
+                                    body = "Per segnalare contenuti inappropriati: andrea.monti24@studio.unibo.it"
+                                )
+                                DialogSection(
+                                    title = "Orari di supporto",
+                                    body = "Lun–Ven, 9:00–18:00. Risposta entro 1 giorno lavorativo."
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = { showContattiDialog = false }) {
+                                Text("Chiudi")
+                            }
+                        }
+                    )
+                }
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     TextButton(
-                        onClick = { },
+                        onClick = { showPrivacyDialog = true },
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
@@ -233,7 +327,7 @@ fun RegistrationScreen(
                     }
 
                     TextButton(
-                        onClick = { },
+                        onClick = { showTerminiDialog = true },
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
@@ -244,7 +338,7 @@ fun RegistrationScreen(
                     }
 
                     TextButton(
-                        onClick = { },
+                        onClick = { showContattiDialog = true },
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
