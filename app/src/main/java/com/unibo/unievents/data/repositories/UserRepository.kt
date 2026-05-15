@@ -30,6 +30,7 @@ data class FriendsTable (
 
 class UserRepository(private val supabase: SupabaseClient) {
     suspend fun getCurrentUser(): User {
+        supabase.auth.awaitInitialization()
         val currentUser = supabase.auth.currentUserOrNull()?.id
             ?: throw IllegalStateException("No user currently signed in")
 
