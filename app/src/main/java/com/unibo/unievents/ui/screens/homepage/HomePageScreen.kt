@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.BottomBar
@@ -41,35 +40,35 @@ fun HomePageScreen(
     actions: HomePageActions,
     navController: NavHostController
 ) {
-    if (state.loading) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        Scaffold(
-            topBar = { TopBar(navController, "Homepage") },
-            bottomBar = { BottomBar(navController) },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { navController.navigate(NavigationRoute.AddEvent) },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    shape = CircleShape,
-                    modifier = Modifier.size(56.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Crea evento",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            },
-            floatingActionButtonPosition = FabPosition.End,
-            containerColor = MaterialTheme.colorScheme.background
-        ) { paddingValues ->
+    Scaffold(
+        topBar = { TopBar(navController, "Homepage") },
+        bottomBar = { BottomBar(navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(NavigationRoute.AddEvent) },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                shape = CircleShape,
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Crea evento",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        if (state.loading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -85,9 +84,10 @@ fun HomePageScreen(
                         onNext = { actions.goToNextDay() }
                     )
                 }
+
                 if (state.events.isEmpty()) {
                     item {
-                        Card (
+                        Card(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(16.dp),
                             shape = RoundedCornerShape(16.dp),
@@ -133,7 +133,6 @@ fun HomePageScreen(
                         )
                     }
                 }
-
             }
         }
     }

@@ -57,6 +57,7 @@ fun RegistrationScreen(
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var showTerminiDialog by remember { mutableStateOf(false) }
     var showContattiDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -194,12 +195,10 @@ fun RegistrationScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = {
-                            actions.confirm
-                            navController.navigate(NavigationRoute.Splash)
-                        },
+                        onClick = actions.confirm,
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.loading
                     ) {
                         Text("Registrati")
                     }

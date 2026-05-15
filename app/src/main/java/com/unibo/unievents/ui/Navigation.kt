@@ -1,5 +1,6 @@
 package com.unibo.unievents.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,12 +62,18 @@ fun NavGraph(navController: NavHostController) {
 
     // Checking what is the session status
     LaunchedEffect(sessionStatus) {
+        Log.d("Navigation", sessionStatus.toString())
+
         when(sessionStatus) {
             // If the user is authenticated either redirect to homepage or do nothing
             is SessionStatus.Authenticated -> {
                 val currentPage = navController.currentBackStackEntry?.destination
 
-                if (currentPage?.hasRoute<NavigationRoute.Splash>() == true) {
+                if (
+                    currentPage?.hasRoute<NavigationRoute.Splash>() == true ||
+                    currentPage?.hasRoute<NavigationRoute.Login>() == true ||
+                    currentPage?.hasRoute<NavigationRoute.Register>() == true
+                ) {
                     navController.navigate(NavigationRoute.Home) {
                         popUpTo(0) { inclusive = true }
                     }
@@ -85,12 +92,8 @@ fun NavGraph(navController: NavHostController) {
                 supabase.auth.clearSession()
             }
 
-            // If the session is still initializing, wait
-            is SessionStatus.Initializing -> {
-                navController.navigate(NavigationRoute.Splash) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
+            // If the session is still initializing, do nothing
+            is SessionStatus.Initializing -> { }
         }
     }
 

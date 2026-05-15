@@ -58,13 +58,6 @@ fun LoginScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-
-        LaunchedEffect (state.loginSuccess) {
-            if (state.loginSuccess) {
-                navController.navigate(NavigationRoute.Splash)
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -172,7 +165,8 @@ fun LoginScreen(
                             actions.confirm()
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = !state.isLoading
                     ) {
                         Text("Accedi")
                     }
@@ -190,7 +184,8 @@ fun LoginScreen(
                     OutlinedButton(
                         onClick = { navController.navigate(NavigationRoute.Register) },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = !state.isLoading
                     ) {
                         Text("Registrati ora")
                     }
