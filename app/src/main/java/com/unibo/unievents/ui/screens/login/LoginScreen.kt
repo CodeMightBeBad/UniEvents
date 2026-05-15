@@ -34,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +58,13 @@ fun LoginScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
+
+        LaunchedEffect (state.loginSuccess) {
+            if (state.loginSuccess) {
+                navController.navigate(NavigationRoute.Splash)
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -162,7 +170,6 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             actions.confirm()
-                            navController.navigate(NavigationRoute.Splash)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)

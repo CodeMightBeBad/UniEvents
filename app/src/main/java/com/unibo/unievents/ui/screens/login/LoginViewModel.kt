@@ -15,7 +15,9 @@ data class LoginState(
     val isPasswordVisible: Boolean = false,
     val isLoading: Boolean = false,
     val isLoginEnabled: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+
+    val loginSuccess: Boolean = false
 )
 
 data class LoginActions(
@@ -51,6 +53,9 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
                             password = state.value.password
                         )
 
+                        result.onSuccess {
+                            _state.update { it.copy(isLoading = false, loginSuccess = true) }
+                        }
                         result.onFailure { exception ->
                             _state.update { it.copy(errorMessage = exception.message) }
                         }
