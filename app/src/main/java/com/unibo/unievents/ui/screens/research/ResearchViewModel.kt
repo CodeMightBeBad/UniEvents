@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 data class ResearchState(
     val searchQuery: String = "",
@@ -24,6 +28,10 @@ data class ResearchActions(
     val onSearchQueryChange: (String) -> Unit,
     val onEventClick: (Event) -> Unit
 )
+
+fun formatEventDate(date: LocalDate): String {
+    return "${date.dayOfMonth.toString().padStart(2, '0')}-${date.monthNumber.toString().padStart(2, '0')}-${date.year}"
+}
 
 class ResearchViewModel(
     private val repository: EventRepository
@@ -50,9 +58,11 @@ class ResearchViewModel(
     fun fetchApprovedEvents() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true) }
-
             try {
+                val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 val events = repository.getApprovedEvents()
+                    .filter { event -> event.date >= today }
+
                 _state.update {
                     it.copy(
                         allEvents = events,
@@ -103,15 +113,10 @@ class ResearchViewModel(
 
     private fun matchesSearchQuery(event: Event, query: String): Boolean {
         val lowercaseQuery = query.lowercase()
-
         val matchesTitle = event.title.lowercase().contains(lowercaseQuery)
-
         val matchesAddress = event.address.lowercase().contains(lowercaseQuery)
-
-        val matchesDate = event.date.toString().lowercase().contains(lowercaseQuery)
-
+        val matchesDate = formatEventDate(event.date).contains(lowercaseQuery) // già LocalDate
         return matchesTitle || matchesAddress || matchesDate
-
     }
 
 }
