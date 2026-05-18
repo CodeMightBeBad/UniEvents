@@ -7,9 +7,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Description
@@ -27,6 +35,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,12 +51,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusProperties
-import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.unibo.unievents.ui.composables.TopBar
+import com.unibo.unievents.utils.bitmapToByteArray
+import com.unibo.unievents.utils.rememberCameraLauncher
+import com.unibo.unievents.utils.rememberGalleryLauncher
+import com.unibo.unievents.utils.uriToBitmap
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -61,6 +76,9 @@ fun CreateEventScreen(
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    val (_, takePicture) = rememberCameraLauncher { uri -> actions.addPhoto(uri) }
+    val openGallery = rememberGalleryLauncher { uri -> actions.addPhoto(uri) }
+    val context = LocalContext.current
 
     if (showDatePicker) {
         DatePickerModal(
@@ -86,7 +104,13 @@ fun CreateEventScreen(
         topBar = { TopBar(navController, "Crea evento") },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = {
+                    val bitmaps = state.photos.map { uri ->
+                        val bitmap = uriToBitmap(uri, context.contentResolver)
+                        bitmapToByteArray(bitmap)
+                    }
+                    actions.confirmCreate(bitmaps)
+                },
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             ) {
@@ -236,17 +260,41 @@ fun CreateEventScreen(
                     fontWeight = FontWeight.Bold
                 )
 
+                if (state.photos.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier.heightIn(max = 300.dp)
+                    ) {
+                        items(state.photos.size) { index ->
+                            val uri = state.photos[index]
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                            )
+                        }
+                    }
+                }
+
                 Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 8.dp)
                         .fillMaxWidth()
-                        .padding(12.dp)
                 ) {
-                    Text(
-                        text = "Non sono ancora state aggiunte immagini",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    OutlinedButton(onClick = takePicture) {
+                        Icon(Icons.Default.CameraAlt, null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Camera")
+                    }
+                    OutlinedButton(onClick = openGallery) {
+                        Icon(Icons.Default.Image, null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Galleria")
+                    }
                 }
             }
         }

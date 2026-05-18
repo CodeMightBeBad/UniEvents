@@ -13,7 +13,8 @@ data class Event(
     @SerialName("date") val date: LocalDate,
     @SerialName("time") val time: LocalTime,
     @SerialName("address") val address: String,
-    @SerialName("max_participants") val maxParticipants: Int?
+    @SerialName("max_participants") val maxParticipants: Int?,
+    @SerialName("photos") val photos: List<String> = emptyList()
 )
 
 // Specifically created to handle inserts, no ID field
@@ -24,7 +25,8 @@ data class EventInsert(
     @SerialName("date") val date: LocalDate,
     @SerialName("time") val time: LocalTime,
     @SerialName("address") val address: String,
-    @SerialName("max_participants") val maxParticipants: Int?
+    @SerialName("max_participants") val maxParticipants: Int?,
+    @SerialName("photos") val photos: List<String> = emptyList()
 )
 
 @Serializable
