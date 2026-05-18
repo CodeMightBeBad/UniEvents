@@ -46,7 +46,11 @@ fun BottomBar(navController: NavHostController) {
                     Icon(Icons.Filled.LocationOn, "Map")
                 }
 
-                IconButton(onClick = { /* TODO */ }) {
+                IconButton(onClick = {
+                    navController.navigate(NavigationRoute.MyEvents) {
+                        popUpTo(0)
+                    }
+                }) {
                     Icon(Icons.Filled.DateRange, "Calendar")
                 }
 
