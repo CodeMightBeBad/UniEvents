@@ -52,6 +52,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.wrapContentWidth
 
 @Composable
 fun EventCard(
@@ -129,12 +131,13 @@ fun EventCard(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Button(
                             onClick = onButtonPress,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 12.dp),
                             colors = ButtonDefaults.buttonColors(
                                 contentColor = MaterialTheme.colorScheme.primary,
                                 containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -154,6 +157,7 @@ fun EventCard(
                             onClick = { showDetails = true },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 12.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor = MaterialTheme.colorScheme.secondary
@@ -262,13 +266,13 @@ fun EventDetailSheet(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Button(
                         onClick = onButtonPress,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
