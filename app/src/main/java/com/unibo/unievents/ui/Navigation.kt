@@ -28,7 +28,6 @@ import com.unibo.unievents.ui.screens.login.LoginScreen
 import com.unibo.unievents.ui.screens.login.LoginViewModel
 import com.unibo.unievents.ui.screens.map.MapEventsScreen
 import com.unibo.unievents.ui.screens.map.MapViewModel
-import com.unibo.unievents.ui.screens.myEvents.ActivityPub
 import com.unibo.unievents.ui.screens.myEvents.MyEventsScreen
 import com.unibo.unievents.ui.screens.myEvents.MyEventsViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileScreen
