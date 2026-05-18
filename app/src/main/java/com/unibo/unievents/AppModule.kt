@@ -14,6 +14,7 @@ import com.unibo.unievents.ui.screens.map.MapViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
 import com.unibo.unievents.ui.screens.research.ResearchViewModel
+import com.unibo.unievents.utils.NetworkObserver
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -29,6 +30,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val AppModule = module {
+    single { NetworkObserver(get()) }
+
     single<HttpClient> {
         HttpClient {
             defaultRequest {
