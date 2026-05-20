@@ -21,7 +21,7 @@ data class CreateEventState(
     val description: String = "",
     val date: String = "",
     val time: String = "",
-    val maxPeople: Int = 0,
+    val maxPeople: String = "",
     val addressSuggestions: List<MapResult> = emptyList(),
     val photos: List<Uri> = emptyList(),
     val showAddressSuggestions: Boolean = false
@@ -33,7 +33,7 @@ data class CreateEventActions(
     val updateDescription: (String) -> Unit,
     val updateDate: (String) -> Unit,
     val updateTime: (String) -> Unit,
-    val updateMaxPeople: (Int) -> Unit,
+    val updateMaxPeople: (String) -> Unit,
     val updateShowSuggestions: (Boolean) -> Unit,
     val addPhoto: (Uri) -> Unit,
     val confirmCreate: (List<ByteArray>) -> Unit
@@ -89,7 +89,7 @@ class CreateEventViewModel(
                     description = state.value.description,
                     date = LocalDate.parse(state.value.date, dateFormat),
                     time = LocalTime.parse(state.value.time, timeFormat),
-                    maxParticipants = if (state.value.maxPeople == 0) null else state.value.maxPeople
+                    maxParticipants = state.value.maxPeople.toIntOrNull()
                 )
                 val result = eventRepo.createEvent(eventInsert, photos)
                 if (result.isFailure) {
