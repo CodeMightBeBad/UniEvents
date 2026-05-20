@@ -24,7 +24,9 @@ data class CreateEventState(
     val maxPeople: String = "",
     val addressSuggestions: List<MapResult> = emptyList(),
     val photos: List<Uri> = emptyList(),
-    val showAddressSuggestions: Boolean = false
+
+    val showAddressSuggestions: Boolean = false,
+    val textFieldsError: Boolean = false
 )
 
 data class CreateEventActions(
@@ -36,7 +38,8 @@ data class CreateEventActions(
     val updateMaxPeople: (String) -> Unit,
     val updateShowSuggestions: (Boolean) -> Unit,
     val addPhoto: (Uri) -> Unit,
-    val confirmCreate: (List<ByteArray>) -> Unit
+    val confirmCreate: (List<ByteArray>) -> Unit,
+    val checkFields: () -> Boolean
 )
 
 class CreateEventViewModel(
@@ -80,9 +83,11 @@ class CreateEventViewModel(
                 val dateFormat = LocalDate.Format {
                     dayOfMonth(); char('/'); monthNumber(); char('/'); year()
                 }
+
                 val timeFormat = LocalTime.Format {
                     hour(); char(':'); minute()
                 }
+
                 val eventInsert = EventInsert(
                     title = state.value.title,
                     address = state.value.address,
@@ -91,14 +96,17 @@ class CreateEventViewModel(
                     time = LocalTime.parse(state.value.time, timeFormat),
                     maxParticipants = state.value.maxPeople.toIntOrNull()
                 )
+
                 val result = eventRepo.createEvent(eventInsert, photos)
+
                 if (result.isFailure) {
                     android.util.Log.e("CreateEvent", "Error: ${result.exceptionOrNull()?.message}")
                 } else {
                     android.util.Log.d("CreateEvent", "Success")
                 }
             }
-        }
+        },
+        checkFields = { checkTextFields() }
     )
 
     private fun fetchSuggestions() {
@@ -106,5 +114,13 @@ class CreateEventViewModel(
             val results = mapRepo.addressLookup(state.value.address)
             _state.update { it.copy(addressSuggestions = results) }
         }
+    }
+
+    private fun checkTextFields(): Boolean {
+        return !(state.value.title.isBlank() ||
+                state.value.address.isBlank() ||
+                state.value.description.isBlank() ||
+                state.value.date.isBlank() ||
+                state.value.time.isBlank())
     }
 }

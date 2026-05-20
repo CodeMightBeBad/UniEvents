@@ -40,6 +40,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -51,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,11 +64,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.composables.TopBar
 import com.unibo.unievents.utils.bitmapToByteArray
 import com.unibo.unievents.utils.rememberCameraLauncher
 import com.unibo.unievents.utils.rememberGalleryLauncher
 import com.unibo.unievents.utils.uriToBitmap
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -79,6 +84,10 @@ fun CreateEventScreen(
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+    val snackbarHost = remember { SnackbarHostState() }
+
     val (_, takePicture) = rememberCameraLauncher { uri -> actions.addPhoto(uri) }
     val openGallery = rememberGalleryLauncher { uri -> actions.addPhoto(uri) }
     val context = LocalContext.current
@@ -105,14 +114,26 @@ fun CreateEventScreen(
 
     Scaffold(
         topBar = { TopBar(navController, "Crea evento") },
+        snackbarHost = { SnackbarHost(hostState = snackbarHost) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    val bitmaps = state.photos.map { uri ->
-                        val bitmap = uriToBitmap(uri, context.contentResolver)
-                        bitmapToByteArray(bitmap)
+                    if (actions.checkFields()) {
+                        val bitmaps = state.photos.map { uri ->
+                            val bitmap = uriToBitmap(uri, context.contentResolver)
+                            bitmapToByteArray(bitmap)
+                        }
+
+                        actions.confirmCreate(bitmaps)
+
+                        navController.navigate(NavigationRoute.Home) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    } else {
+                        scope.launch {
+                            snackbarHost.showSnackbar("Compila tutti i campi necessari")
+                        }
                     }
-                    actions.confirmCreate(bitmaps)
                 },
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
