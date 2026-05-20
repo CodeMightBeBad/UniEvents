@@ -14,6 +14,12 @@ data class ProfileState(
     val email: String = "",
     val badgeNumber: String = "",
     val profilePicture: Bitmap? = null,
+    val oldPassword: String = "",
+    val newPassword: String = "",
+
+    val createdEvents: Int = 0,
+    val joinedEvents: Int = 0,
+    val friends: Int = 0,
 
     val loading: Boolean = false,
     val loadingImage: Boolean = false,
@@ -21,6 +27,8 @@ data class ProfileState(
 )
 
 data class ProfileActions(
+    val updatePassword: (String) -> Unit,
+    val updateNewPassword: (String) -> Unit,
     val toggleEdit: () -> Unit,
     val updateProfilePicture: (Bitmap) -> Unit
 )
@@ -30,6 +38,12 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     val state = _state.asStateFlow()
 
     val actions = ProfileActions(
+        updatePassword = { password ->
+            _state.update { it.copy(oldPassword = password) }
+        },
+        updateNewPassword = { password ->
+            _state.update { it.copy(newPassword = password) }
+        },
         toggleEdit = { _state.update { it.copy(editing = !state.value.editing) } },
         updateProfilePicture = { bitmap ->
             _state.update { it.copy(profilePicture = bitmap) }
@@ -51,9 +65,16 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
             val userInfo = repository.getCurrentUser()
 
+            val createdEvents = repository.getOwnEvents().size
+            val joinedEvents = repository.getJoinedEvents().size
+            val friends = repository.getFriends().size
+
             _state.update { it.copy(
                 email = userInfo.email,
                 badgeNumber = userInfo.badgeNumber,
+                createdEvents = createdEvents,
+                joinedEvents = joinedEvents,
+                friends = friends,
                 loading = false
             )}
 
