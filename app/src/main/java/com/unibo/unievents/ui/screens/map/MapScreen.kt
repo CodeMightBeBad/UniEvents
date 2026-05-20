@@ -69,6 +69,10 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.osmdroid.views.CustomZoomButtonsController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 
 @Composable
 fun MapEventsScreen(
@@ -88,7 +92,20 @@ fun MapEventsScreen(
     var myLocationOverlayRef by remember { mutableStateOf<MyLocationNewOverlay?>(null) }
     var selectedLocation by remember { mutableStateOf<EventLoc?>(null) }
 
-    var isMyLocationEnabled by remember { mutableStateOf(false) }
+    val currentLocation by rememberUpdatedState(uiState.currentLocation)
+
+    LaunchedEffect(selectedLocation) {
+        if (selectedLocation != null) {
+            delay(100_000)
+            selectedLocation = null
+            currentLocation?.let {
+                mapViewRef?.controller?.animateTo(GeoPoint(it.latitude, it.longitude))
+                mapViewRef?.controller?.setZoom(17.0)
+                myLocationOverlayRef?.enableFollowLocation()
+            }
+        }
+    }
+
 
     val hasLocationPermission = ContextCompat.checkSelfPermission(
         context,
@@ -282,49 +299,58 @@ fun MapEventsScreen(
                                             ctx.applicationContext,
                                             androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx.applicationContext)
                                         )
-
                                         setTileSource(TileSourceFactory.MAPNIK)
                                         setMultiTouchControls(true)
                                         zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
 
                                         val startPoint = uiState.currentLocation?.let {
                                             GeoPoint(it.latitude, it.longitude)
-                                        } ?: GeoPoint(44.143333,12.249722) // cesena
-                                        // (44.4949, 11.3426) // Bologna centro
+                                        } ?: GeoPoint(44.143333, 12.249722)
 
                                         controller.setZoom(17.0)
                                         controller.setCenter(startPoint)
 
-                                        val myLocationOverlay = MyLocationNewOverlay(
-                                            GpsMyLocationProvider(ctx),
-                                            this
-                                        )
-
+                                        val myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(ctx), this)
                                         myLocationOverlay.enableMyLocation()
                                         myLocationOverlay.enableFollowLocation()
                                         myLocationOverlay.isDrawAccuracyEnabled = true
                                         overlays.add(myLocationOverlay)
                                         myLocationOverlayRef = myLocationOverlay
-
-                                        eventLocations.forEach { location ->
-                                            val marker = Marker(this)
-                                            marker.position = location.geoPoint
-                                            marker.title = location.name
-                                            marker.subDescription = "${location.eventCount} evento"
-                                            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-
-                                            marker.setOnMarkerClickListener { _, _ ->
-                                                selectedLocation = location
-                                                controller.animateTo(location.geoPoint)
-                                                marker.showInfoWindow()
-                                                true
-                                            }
-
-                                            overlays.add(marker)
-                                        }
-
                                         mapViewRef = this
                                     }
+                                },
+                                update = { mapView ->
+                                    // Rimuovi tutti i marker precedenti (non il myLocationOverlay)
+                                    mapView.overlays.removeAll(mapView.overlays.filterIsInstance<Marker>())
+
+                                    // Aggiungi marker degli eventi
+                                    eventLocations.forEach { location ->
+                                        val marker = Marker(mapView).apply {
+                                            position = location.geoPoint
+                                            title = location.name
+                                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                            setOnMarkerClickListener { _, _ ->
+                                                android.util.Log.d("MapDebug", "Marker cliccato: ${location.name}")
+                                                selectedLocation = location
+                                                mapView.controller.animateTo(location.geoPoint)
+                                                showInfoWindow()
+                                                true
+                                            }
+                                        }
+                                        mapView.overlays.add(marker)
+                                    }
+
+                                    // Aggiungi marker rosso se c'è una location selezionata
+                                    selectedLocation?.let { selected ->
+                                        val redMarker = Marker(mapView).apply {
+                                            position = selected.geoPoint
+                                            title = selected.name
+                                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                        }
+                                        mapView.overlays.add(redMarker)
+                                    }
+
+                                    mapView.invalidate()
                                 },
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -415,20 +441,8 @@ fun MapEventsScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         selectedLocation = location
-                                        mapViewRef?.let { mapView ->
-                                            mapView.controller.animateTo(location.geoPoint)
-                                            mapView.controller.setZoom(16.0)
-
-                                            mapView.overlays.forEach { overlay ->
-                                                if (overlay is Marker) {
-                                                    if (overlay.position == location.geoPoint) {
-                                                        overlay.showInfoWindow()
-                                                    } else {
-                                                        overlay.closeInfoWindow()
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        mapViewRef?.controller?.animateTo(location.geoPoint)
+                                        mapViewRef?.controller?.setZoom(16.0)
                                     },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(
@@ -452,13 +466,6 @@ fun MapEventsScreen(
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.LocationOn,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(16.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
                                             Text(
                                                 text = location.name,
                                                 style = MaterialTheme.typography.titleMedium,
@@ -466,6 +473,13 @@ fun MapEventsScreen(
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                         }
+                                        Icon(
+                                            imageVector = Icons.Default.LocationOn,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
                                         Text(
                                             text = location.address,
                                             style = MaterialTheme.typography.bodySmall,

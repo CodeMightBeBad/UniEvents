@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.Coordinates
 import com.unibo.unievents.data.LocationService
+import com.unibo.unievents.data.repositories.EventRepository
 import com.unibo.unievents.utils.PermissionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +40,8 @@ data class MapUiState(
 )
 
 class MapViewModel(
-    private val context: Context
+    private val context: Context,
+    private val eventRepository: EventRepository
 ) : ViewModel() {
 
     private val locationService = LocationService(context)
@@ -73,53 +75,36 @@ class MapViewModel(
     private fun loadEvents() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val rawEvents = eventRepository.getApprovedEvents()
+                android.util.Log.d("MapDebug", "Eventi dal DB: ${rawEvents.size}")
 
-            val events = listOf(
-                EventLocation(
-                    id = "1",
-                    title = "Hackathon UniBO 2026",
-                    location = "Laboratorio Informatica",
-                    address = "Via Mura Anteo Zamboni 7, Bologna",
-                    latitude = 44.4949,
-                    longitude = 11.3530,
-                    date = "10 mar 2028",
-                    time = "09:00",
-                    participants = 45,
-                    maxParticipants = 100,
-                    description = "Hackathon dedicato all'innovazione tecnologica"
-                ),
-                EventLocation(
-                    id = "2",
-                    title = "Aperitivo di Benvenuto",
-                    location = "Sala Feste Campus",
-                    address = "Piazza Scaravilli 1, Bologna",
-                    latitude = 44.4965,
-                    longitude = 11.3518,
-                    date = "22 apr 2026",
-                    time = "18:00",
-                    participants = 3,
-                    maxParticipants = 100,
-                    description = "Aperitivo per conoscere gli studenti del primo anno"
-                ),
-                EventLocation(
-                    id = "3",
-                    title = "Career Day 2026",
-                    location = "Centro Congressi",
-                    address = "Piazza della Costituzione 4, Bologna",
-                    latitude = 44.5038,
-                    longitude = 11.3406,
-                    date = "15 mag 2026",
-                    time = "10:00",
-                    participants = 120,
-                    maxParticipants = 200,
-                    description = "Incontra le migliori aziende del settore"
-                )
-            )
-
-            _uiState.value = _uiState.value.copy(
-                events = events,
-                isLoading = false
-            )
+                val events = rawEvents.mapNotNull { event ->
+                    android.util.Log.d("MapDebug", "Geocoding: ${event.address}")
+                    val coords = eventRepository.getCoordinatesFromAddress(event.address)
+                    android.util.Log.d("MapDebug", "Coords per ${event.address}: $coords")
+                    if (coords == null) return@mapNotNull null
+                    val participantsCount = eventRepository.getPeopleCount(event)
+                    EventLocation(
+                        id = event.id.toString(),
+                        title = event.title,
+                        location = event.address,
+                        address = event.address,
+                        latitude = coords.first,
+                        longitude = coords.second,
+                        date = event.date.toString(),
+                        time = event.time.toString(),
+                        participants = participantsCount,
+                        maxParticipants = event.maxParticipants ?: 0,
+                        description = event.description
+                    )
+                }
+                android.util.Log.d("MapDebug", "EventLocation finali: ${events.size}")
+                _uiState.value = _uiState.value.copy(events = events, isLoading = false)
+            } catch (e: Exception) {
+                android.util.Log.e("MapDebug", "Errore: ${e.message}", e)
+                _uiState.value = _uiState.value.copy(error = e.message, isLoading = false)
+            }
         }
     }
 

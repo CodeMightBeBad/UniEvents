@@ -63,7 +63,7 @@ val AppModule = module {
     }
 
     single { AuthRepository(get()) }
-    single { EventRepository(get()) }
+    single { EventRepository(get(), get()) }
     single { UserRepository(get()) }
 
     viewModel { RegistrationViewModel(get()) }
@@ -73,7 +73,7 @@ val AppModule = module {
     viewModel { CreateEventViewModel(get(), get()) }
     viewModel { BoardViewModel(get()) }
     viewModel { ResearchViewModel(get()) }
-    viewModel { MapViewModel(get()) }
+    viewModel { MapViewModel(get(), get()) }
     viewModel { FriendsViewModel(get()) }
     viewModel { AddFriendViewModel(get()) }
     viewModel { MyEventsViewModel(get(), get()) }
