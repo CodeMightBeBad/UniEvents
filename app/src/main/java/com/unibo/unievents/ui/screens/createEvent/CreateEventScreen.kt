@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.People
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -84,6 +85,7 @@ fun CreateEventScreen(
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
     val snackbarHost = remember { SnackbarHostState() }
@@ -112,6 +114,21 @@ fun CreateEventScreen(
         )
     }
 
+    if (showSuccessDialog) {
+        SuccessDialog(
+            onHome = {
+                navController.navigate(NavigationRoute.Home) {
+                    popUpTo(0) { inclusive = true }
+                }
+            },
+            onNew = {
+                navController.navigate(NavigationRoute.AddEvent) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = { TopBar(navController, "Crea evento") },
         snackbarHost = { SnackbarHost(hostState = snackbarHost) },
@@ -126,9 +143,7 @@ fun CreateEventScreen(
 
                         actions.confirmCreate(bitmaps)
 
-                        navController.navigate(NavigationRoute.Home) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                        showSuccessDialog = true
                     } else {
                         scope.launch {
                             snackbarHost.showSnackbar("Compila tutti i campi necessari")
@@ -397,6 +412,28 @@ fun TimePickerModal(
     ) {
         TimePicker(timePickerState)
     }
+}
+
+@Composable
+fun SuccessDialog(
+    onHome: () -> Unit,
+    onNew: () -> Unit
+) {
+    AlertDialog (
+        title = { Text("Evento aggiunto") },
+        text = { Text("L'evento è stato aggiunto correttamente ed è in attesa di essere approvato") },
+        onDismissRequest = onNew,
+        confirmButton = {
+            TextButton(onClick = onHome) {
+                Text("Torna alla homepage")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onNew) {
+                Text("Inserisci un altro evento")
+            }
+        }
+    )
 }
 
 private fun convertMillsToDate(millis: Long): String {

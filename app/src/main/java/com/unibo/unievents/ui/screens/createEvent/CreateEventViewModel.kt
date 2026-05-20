@@ -1,6 +1,7 @@
 package com.unibo.unievents.ui.screens.createEvent
 
 import android.net.Uri
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unibo.unievents.data.EventInsert
@@ -117,10 +118,17 @@ class CreateEventViewModel(
     }
 
     private fun checkTextFields(): Boolean {
-        return !(state.value.title.isBlank() ||
+        // Check that no field is left empty
+        if (state.value.title.isBlank() ||
                 state.value.address.isBlank() ||
                 state.value.description.isBlank() ||
                 state.value.date.isBlank() ||
-                state.value.time.isBlank())
+                state.value.time.isBlank()
+        ) return false
+
+        // Check that (if the field is populated) maxPeople only contains numbers
+        if (!state.value.maxPeople.isEmpty() && !state.value.maxPeople.isDigitsOnly()) return false
+
+        return true
     }
 }
