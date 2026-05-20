@@ -9,27 +9,50 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 data class MyEventsState(
     val createdEvents: List<Event> = emptyList(),
     val joinedEvents: List<Event> = emptyList(),
-
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val isCreatedExpanded: Boolean = false,
+    val isJoinedExpanded: Boolean = false
 )
 
 data class MyEventsActions(
-    val switchMode: () -> Unit
+    val toggleCreatedExpanded: (Boolean) -> Unit,
+    val toggleJoinedExpanded: (Boolean) -> Unit
 )
 
 class MyEventsViewModel(
-    private val eventsRepo: EventRepository, private val userRepo: UserRepository
+    private val eventsRepo: EventRepository,
+    private val userRepo: UserRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(MyEventsState())
     val state = _state.asStateFlow()
 
     val actions = MyEventsActions(
-        switchMode = {}
+        toggleCreatedExpanded = {
+            _state.update { it.copy(isCreatedExpanded = !it.isCreatedExpanded) }
+        },
+        toggleJoinedExpanded = {
+            _state.update { it.copy(isJoinedExpanded = !it.isJoinedExpanded) }
+        }
     )
+
+    private fun filterFutureEvents(events: List<Event>): List<Event> {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+        val filteredEvents = events.filter { event ->
+            event.date >= today
+        }
+
+        return filteredEvents.sortedBy { event ->
+            event.date
+        }
+    }
 
     private fun fetchData() {
         viewModelScope.launch {
@@ -39,14 +62,14 @@ class MyEventsViewModel(
             val joinedEvents = userRepo.getJoinedEvents()
 
             _state.update { it.copy(
-                createdEvents = ownEvents,
-                joinedEvents = joinedEvents,
+                createdEvents = filterFutureEvents(ownEvents),
+                joinedEvents = filterFutureEvents(joinedEvents),
                 loading = false
             )}
         }
     }
 
     init {
-        //fetchData()
+        fetchData()
     }
 }
