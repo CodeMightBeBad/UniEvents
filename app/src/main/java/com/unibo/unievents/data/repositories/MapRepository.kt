@@ -3,8 +3,8 @@ package com.unibo.unievents.data.repositories
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.headers
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,7 +12,8 @@ import kotlinx.serialization.Serializable
 data class MapResult(
     @SerialName("lat") val latitude: String,
     @SerialName("lon") val longitude: String,
-    @SerialName("display_name") val name: String
+    @SerialName("display_name") val name: String,
+    @SerialName("place_rank") val rank: Int
 )
 
 class MapRepository(private val httpClient: HttpClient) {
@@ -21,15 +22,20 @@ class MapRepository(private val httpClient: HttpClient) {
     }
 
     suspend fun addressLookup(address: String): List<MapResult> {
-        val requestUrl = "$BASE_URL/search?q=${address.replace(' ', '+')}&format=jsonv2&limit=5&countrycodes=it&accept-language=it-it"
+        val response = httpClient.get("$BASE_URL/search") {
+            url {
+                parameters.append("q", address)
+                parameters.append("format", "jsonv2")
+                parameters.append("limit", "5")
+                parameters.append("countrycodes", "it")
+                parameters.append("accept-language", "it-it")
+            }
 
-        val response = httpClient.get(requestUrl) {
-            headers{
+            headers {
                 append(HttpHeaders.Accept, "application/json")
-                append(HttpHeaders.UserAgent, "Ktor client, android application")
             }
         }
 
-        return response.body()
+        return response.body<List<MapResult>>().filter { it.rank >= 28 }
     }
 }
