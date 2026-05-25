@@ -15,7 +15,6 @@ import com.unibo.unievents.ui.screens.myEvents.MyEventsViewModel
 import com.unibo.unievents.ui.screens.profile.ProfileViewModel
 import com.unibo.unievents.ui.screens.registration.RegistrationViewModel
 import com.unibo.unievents.ui.screens.research.ResearchViewModel
-import com.unibo.unievents.utils.NetworkObserver
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -31,8 +30,6 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val AppModule = module {
-    single { NetworkObserver(get()) }
-
     single<HttpClient> {
         HttpClient {
             defaultRequest {
@@ -41,6 +38,7 @@ val AppModule = module {
                     "UniEvents/1.0 (Android)"
                 )
             }
+
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
@@ -48,8 +46,6 @@ val AppModule = module {
             }
         }
     }
-
-    single { MapRepository(get()) }
 
     single<SupabaseClient> {
         createSupabaseClient(
@@ -61,6 +57,8 @@ val AppModule = module {
             install(Storage)
         }
     }
+
+    single { MapRepository(get()) }
 
     single { AuthRepository(get()) }
     single { EventRepository(get(), get()) }
