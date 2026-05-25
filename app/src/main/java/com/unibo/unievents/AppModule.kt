@@ -71,7 +71,7 @@ val AppModule = module {
     viewModel { CreateEventViewModel(get(), get()) }
     viewModel { BoardViewModel(get()) }
     viewModel { ResearchViewModel(get()) }
-    viewModel { MapViewModel(get(), get()) }
+    viewModel { MapViewModel(get()) }
     viewModel { FriendsViewModel(get()) }
     viewModel { AddFriendViewModel(get()) }
     viewModel { MyEventsViewModel(get(), get()) }

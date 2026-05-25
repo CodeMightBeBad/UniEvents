@@ -26,7 +26,7 @@ import com.unibo.unievents.ui.screens.homepage.HomePageScreen
 import com.unibo.unievents.ui.screens.homepage.HomePageViewModel
 import com.unibo.unievents.ui.screens.login.LoginScreen
 import com.unibo.unievents.ui.screens.login.LoginViewModel
-import com.unibo.unievents.ui.screens.map.MapEventsScreen
+import com.unibo.unievents.ui.screens.map.MapScreen
 import com.unibo.unievents.ui.screens.map.MapViewModel
 import com.unibo.unievents.ui.screens.myEvents.MyEventsScreen
 import com.unibo.unievents.ui.screens.myEvents.MyEventsViewModel
@@ -164,8 +164,9 @@ fun NavGraph(navController: NavHostController) {
 
         composable<NavigationRoute.Map> {
             val vm = koinViewModel<MapViewModel>()
+            val state by vm.state.collectAsStateWithLifecycle()
 
-            MapEventsScreen(navController, vm)
+            MapScreen(state, navController)
         }
 
         composable<NavigationRoute.Friends> {
