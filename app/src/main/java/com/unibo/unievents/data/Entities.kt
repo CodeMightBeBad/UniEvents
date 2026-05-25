@@ -13,6 +13,8 @@ data class Event(
     @SerialName("date") val date: LocalDate,
     @SerialName("time") val time: LocalTime,
     @SerialName("address") val address: String,
+    @SerialName("longitude") val longitude: String,
+    @SerialName("latitude") val latitude: String,
     @SerialName("max_participants") val maxParticipants: Int?,
     @SerialName("photos") val photos: List<String> = emptyList()
 )
@@ -25,6 +27,8 @@ data class EventInsert(
     @SerialName("date") val date: LocalDate,
     @SerialName("time") val time: LocalTime,
     @SerialName("address") val address: String,
+    @SerialName("longitude") val longitude: String,
+    @SerialName("latitude") val latitude: String,
     @SerialName("max_participants") val maxParticipants: Int?,
     @SerialName("photos") val photos: List<String> = emptyList()
 )

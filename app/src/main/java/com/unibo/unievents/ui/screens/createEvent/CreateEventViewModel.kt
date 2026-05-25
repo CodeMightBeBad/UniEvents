@@ -112,13 +112,17 @@ class CreateEventViewModel(
                     hour(); char(':'); minute()
                 }
 
+                val address = state.value.addressSuggestions.first { it.formatAddress() == state.value.address }
+
                 val eventInsert = EventInsert(
                     title = state.value.title,
                     address = state.value.address,
                     description = state.value.description,
                     date = LocalDate.parse(state.value.date, dateFormat),
                     time = LocalTime.parse(state.value.time, timeFormat),
-                    maxParticipants = state.value.maxPeople.toIntOrNull()
+                    maxParticipants = state.value.maxPeople.toIntOrNull(),
+                    latitude = address.latitude,
+                    longitude = address.longitude
                 )
 
                 val result = eventRepo.createEvent(eventInsert, photos)
