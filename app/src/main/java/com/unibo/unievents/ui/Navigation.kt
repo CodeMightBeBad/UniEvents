@@ -166,7 +166,7 @@ fun NavGraph(navController: NavHostController) {
             val vm = koinViewModel<MapViewModel>()
             val state by vm.state.collectAsStateWithLifecycle()
 
-            MapScreen(state, navController)
+            MapScreen(state, vm.actions, navController)
         }
 
         composable<NavigationRoute.Friends> {

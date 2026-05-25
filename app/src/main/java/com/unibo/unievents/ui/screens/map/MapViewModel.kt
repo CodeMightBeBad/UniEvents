@@ -11,13 +11,24 @@ import kotlinx.coroutines.launch
 
 data class MapState (
     val events: List<Event> = emptyList(),
+    val selectedEvent: Pair<Double, Double>? = null,
 
     val loading: Boolean = false
+)
+
+data class MapActions (
+    val selectEvent: (Double, Double) -> Unit
 )
 
 class MapViewModel(private val repository: EventRepository): ViewModel() {
     private val _state = MutableStateFlow(MapState())
     val state = _state.asStateFlow()
+
+    val actions = MapActions(
+        selectEvent = { lat, long ->
+            _state.update { it.copy(selectedEvent = Pair(lat, long)) }
+        }
+    )
 
     init {
         fetchEvents()
