@@ -1,6 +1,7 @@
 package com.unibo.unievents.ui.screens.createEvent
 
 import android.net.Uri
+import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,8 +9,13 @@ import com.unibo.unievents.data.EventInsert
 import com.unibo.unievents.data.repositories.EventRepository
 import com.unibo.unievents.data.repositories.MapRepository
 import com.unibo.unievents.data.repositories.MapResult
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -27,7 +33,9 @@ data class CreateEventState(
     val photos: List<Uri> = emptyList(),
 
     val showAddressSuggestions: Boolean = false,
-    val textFieldsError: Boolean = false
+    val textFieldsError: Boolean = false,
+    val searchingAddress: Boolean = false,
+    val selectedAddress: Boolean = false
 )
 
 data class CreateEventActions(
@@ -40,26 +48,41 @@ data class CreateEventActions(
     val updateShowSuggestions: (Boolean) -> Unit,
     val addPhoto: (Uri) -> Unit,
     val confirmCreate: (List<ByteArray>) -> Unit,
-    val checkFields: () -> Boolean
+    val checkFields: () -> Boolean,
+    val selectAddress: (String) -> Unit
 )
 
+@OptIn(FlowPreview::class)
 class CreateEventViewModel(
     private val eventRepo: EventRepository,
     private val mapRepo: MapRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(CreateEventState())
     val state = _state.asStateFlow()
-    
+
+    // Only search the address after 1 second the user hasn't changed it to avoid hitting rate limits
+    init {
+        viewModelScope.launch {
+            _state
+                .map { it.address }
+                .distinctUntilChanged()
+                .debounce(1000L)
+                .filter { it.length >= 5 }
+                .collect { address ->
+                    fetchSuggestions(address)
+                }
+        }
+    }
+
     val actions = CreateEventActions(
         updateTitle = { newTitle ->
             _state.update { it.copy(title = newTitle) }
         },
         updateAddress = { newAddress ->
-            _state.update { it.copy(address = newAddress) }
-
-            if (newAddress.length > 5 && state.value.showAddressSuggestions) {
-                fetchSuggestions()
-            }
+            _state.update { it.copy(
+                address = newAddress,
+                selectedAddress = false
+            )}
         },
         updateDescription = { newDescription ->
             _state.update { it.copy(description = newDescription) }
@@ -101,19 +124,41 @@ class CreateEventViewModel(
                 val result = eventRepo.createEvent(eventInsert, photos)
 
                 if (result.isFailure) {
-                    android.util.Log.e("CreateEvent", "Error: ${result.exceptionOrNull()?.message}")
+                    Log.e("CreateEvent", "Error: ${result.exceptionOrNull()?.message}")
                 } else {
-                    android.util.Log.d("CreateEvent", "Success")
+                    Log.d("CreateEvent", "Success")
                 }
             }
         },
-        checkFields = { checkTextFields() }
+        checkFields = { checkTextFields() },
+        selectAddress = { address ->
+            _state.update { it.copy(
+                selectedAddress = true,
+                address = address,
+                showAddressSuggestions = false
+            )}
+        }
     )
 
-    private fun fetchSuggestions() {
-        viewModelScope.launch {
-            val results = mapRepo.addressLookup(state.value.address)
-            _state.update { it.copy(addressSuggestions = results) }
+    private fun fetchSuggestions(address: String) {
+        if (!state.value.selectedAddress) {
+            viewModelScope.launch {
+                _state.update { it.copy(searchingAddress = true) }
+
+                try {
+                    val results = mapRepo.addressLookup(address)
+                    _state.update {
+                        it.copy(
+                            addressSuggestions = results,
+                            showAddressSuggestions = true
+                        )
+                    }
+                } catch (_: Exception) {
+                    Log.d("CreateEventViewModel", "Exception on address lookup")
+                } finally {
+                    _state.update { it.copy(searchingAddress = false) }
+                }
+            }
         }
     }
 
@@ -128,6 +173,8 @@ class CreateEventViewModel(
 
         // Check that (if the field is populated) maxPeople only contains numbers
         if (!state.value.maxPeople.isEmpty() && !state.value.maxPeople.isDigitsOnly()) return false
+
+        if (!state.value.selectedAddress) return false
 
         return true
     }

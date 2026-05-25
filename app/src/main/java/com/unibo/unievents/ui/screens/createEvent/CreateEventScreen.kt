@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.People
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -221,6 +222,11 @@ fun CreateEventScreen(
                         onValueChange = actions.updateAddress,
                         label = { Text("Indirizzo") },
                         leadingIcon = { Icon(Icons.Outlined.LocationOn, "Location") },
+                        trailingIcon = {
+                            if (state.searchingAddress) {
+                                CircularProgressIndicator(modifier = Modifier.size(25.dp))
+                            }
+                        },
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -233,11 +239,8 @@ fun CreateEventScreen(
                     ) {
                         state.addressSuggestions.forEach { address ->
                             DropdownMenuItem(
-                                text = { Text(address.name) },
-                                onClick = {
-                                    actions.updateAddress(address.name)
-                                    actions.updateShowSuggestions(false)
-                                }
+                                text = { Text(address.formatAddress()) },
+                                onClick = { actions.selectAddress(address.formatAddress()) }
                             )
                         }
                     }
@@ -334,7 +337,8 @@ fun CreateEventScreen(
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier
+                        .padding(top = 8.dp)
                         .fillMaxWidth()
                 ) {
                     OutlinedButton(onClick = takePicture) {
