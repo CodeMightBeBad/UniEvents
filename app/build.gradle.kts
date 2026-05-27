@@ -54,9 +54,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
-    // OSM
-    implementation(libs.play.services.location)
-    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.datetime)
