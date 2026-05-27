@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.material3)
     implementation(libs.play.services.location)
@@ -58,12 +57,11 @@ dependencies {
     // OSM
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
-    implementation(libs.play.services.maps)
 
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.datetime)
 
-    implementation(libs.osmdroid.android.v6117)
+    implementation(libs.osmdroid.android)
     implementation(libs.androidx.preference.ktx)
 
     testImplementation(libs.junit)
