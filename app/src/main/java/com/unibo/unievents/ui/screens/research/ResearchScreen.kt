@@ -41,7 +41,9 @@ import com.unibo.unievents.ui.composables.TopBar
 import com.unibo.unievents.data.Event
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.sp
+import com.unibo.unievents.ui.composables.parseItalianAddress
 
 @Composable
 fun ResearchScreen(
@@ -165,6 +167,11 @@ fun EventCard(
     event: Event,
     onClick: () -> Unit
 ) {
+
+    val (city, street) = remember(event.address) {
+        parseItalianAddress(event.address)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,7 +210,7 @@ fun EventCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "Bologna")
+                        Text(text = city)
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -215,7 +222,7 @@ fun EventCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = event.address)
+                        Text(text = street)
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
