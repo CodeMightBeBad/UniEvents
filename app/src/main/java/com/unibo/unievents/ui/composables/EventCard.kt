@@ -60,6 +60,9 @@ fun EventCard(
     onButtonPress: () -> Unit
 ) {
     var showDetails by remember { mutableStateOf(false) }
+    val (city, street) = remember(event.address) {
+        parseItalianAddress(event.address)
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -94,7 +97,7 @@ fun EventCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.LocationOn, contentDescription = "Location", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "Bologna")
+                        Text(text = city)
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -102,7 +105,7 @@ fun EventCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Business, contentDescription = "Venue", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = event.address)
+                        Text(text = street)
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -190,6 +193,9 @@ fun EventDetailSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val (city, street) = remember(event.address) {
+        parseItalianAddress(event.address)
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -225,7 +231,7 @@ fun EventDetailSheet(
                     color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
-                        text = "Bologna",
+                        text = city,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -246,7 +252,7 @@ fun EventDetailSheet(
                     }
                 }
 
-                DetailRow(Icons.Default.LocationOn, event.address)
+                DetailRow(Icons.Default.LocationOn, street)
                 DetailRow(Icons.Filled.Schedule, "${event.date} alle ore ${event.time}")
                 DetailRow(Icons.Filled.PeopleAlt, "0 / ${event.maxParticipants ?: 30} partecipanti")
 
@@ -338,4 +344,35 @@ fun shareEvent(context: Context, event: Event) {
     }
 
     context.startActivity(Intent.createChooser(intent, "Condividi evento"))
+}
+
+fun parseItalianAddress(address: String): Pair<String, String> {
+    val parts = address.split(",").map { it.trim() }
+
+    return when {
+        parts.size >= 4 -> {
+            val streetName = parts[0]
+            val streetNumber = parts[1]
+            val streetWithNumber = if (streetNumber.isNotEmpty()) {
+                "$streetName, $streetNumber"
+            } else {
+                streetName
+            }
+            val city = parts[3]
+            Pair(city, streetWithNumber)
+        }
+        parts.size == 3 -> {
+            val street = parts[0]
+            val city = parts[2]
+            Pair(city, street)
+        }
+        parts.size == 2 -> {
+            val street = parts[0]
+            val city = parts[1]
+            Pair(city, street)
+        }
+        else -> {
+            Pair(address, address)
+        }
+    }
 }
