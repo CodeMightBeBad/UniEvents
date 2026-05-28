@@ -16,11 +16,14 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.unibo.unievents.data.Event
+import com.unibo.unievents.ui.screens.research.formatEventDate
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun CustomEventDropdown(
@@ -115,6 +118,9 @@ fun EventCardItem(
     event: Event,
     onClick: () -> Unit
 ) {
+    val (city, street) = remember(event.address) {
+        parseItalianAddress(event.address)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,7 +146,7 @@ fun EventCardItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.DateRange, contentDescription = "Date", modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text = event.date.toString())
+                Text(text = formatEventDate(event.date))
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -153,15 +159,15 @@ fun EventCardItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Business, contentDescription = "Venue", modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = event.address)
+                    Text(text = "$street, $city")
                 }
             }
 
             if (event.description.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = event.description,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "Descrizione: ${event.description}",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2
                 )
