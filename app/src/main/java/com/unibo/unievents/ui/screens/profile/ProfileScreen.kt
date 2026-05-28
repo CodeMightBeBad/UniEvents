@@ -106,7 +106,7 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        topBar = { TopBar(navController, "Il tuo profilo") },
+        topBar = { TopBar(navController, "Il mio profilo") },
         bottomBar = { BottomBar(navController) },
         containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
