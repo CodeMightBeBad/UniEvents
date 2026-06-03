@@ -42,6 +42,7 @@ import androidx.navigation.NavHostController
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
+import com.unibo.unievents.ui.screens.research.formatEventDate
 
 @Composable
 fun BoardScreen(
@@ -144,7 +145,7 @@ fun EventCard(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = event.date.toString()
+                            text = formatEventDate(event.date)
                         )
                     }
 
