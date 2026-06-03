@@ -27,26 +27,25 @@ class BoardViewModel(private val repository: EventRepository) : ViewModel() {
         approveEvent = { event ->
             viewModelScope.launch {
                 repository.approveEvent(event)
+                loadEvents()
             }
-
-            fetchEvents()
         },
         removeEvent = { event ->
             viewModelScope.launch {
                 repository.deleteEvent(event)
+                loadEvents()
             }
-
-            fetchEvents()
         }
     )
 
-    fun fetchEvents() {
-        viewModelScope.launch {
-            _state.update { it.copy(loading = true) }
+    private suspend fun loadEvents() {
+        _state.update { it.copy(loading = true) }
+        val eventList = repository.getPendingEvents()
+        _state.update { it.copy(events = eventList, loading = false) }
+    }
 
-            val eventList = repository.getPendingEvents()
-            _state.update { it.copy(events = eventList, loading = false) }
-        }
+    fun fetchEvents() {
+        viewModelScope.launch { loadEvents() }
     }
 
     init {
