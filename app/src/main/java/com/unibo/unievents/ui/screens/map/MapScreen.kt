@@ -1,16 +1,21 @@
 package com.unibo.unievents.ui.screens.map
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -35,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,6 +65,7 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun MapScreen(
     state: MapState,
@@ -76,6 +83,9 @@ fun MapScreen(
 
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
     val loadingLocation by locationService.isLoading.collectAsStateWithLifecycle()
+
+    val conf = LocalConfiguration.current
+    val isLandscape = conf.screenWidthDp > conf.screenHeightDp
 
     fun getCurrentLocation() = scope.launch {
         try {
@@ -148,69 +158,136 @@ fun MapScreen(
         topBar = { TopBar(navController, "Mappa eventi") },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth()
-                .padding(15.dp)
-        ) {
-            Card (
+        if (isLandscape) {
+            Row (
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(360.dp)
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(15.dp)
             ) {
-                Box {
-                    EventsMap(state.events, state.selectedEvent, coordinates)
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    Box {
+                        EventsMap(state.events, state.selectedEvent, coordinates)
+                        IconButton(
+                            onClick = { getLocationOrRequestPermission() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            enabled = !loadingLocation
+                        ) {
+                            Icon(Icons.Filled.GpsFixed, "Current location")
+                        }
+                    }
+                }
 
-                    IconButton(
-                        onClick = { getLocationOrRequestPermission() },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        enabled = !loadingLocation
-                    ) {
-                        Icon(Icons.Filled.GpsFixed, "Current location")
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    Text(
+                        text = "Eventi:",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    if (state.events.isEmpty()) {
+                        Text(
+                            text = "Non ci sono eventi in programma",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            items(state.events) { event ->
+                                EventCard(
+                                    title = event.title,
+                                    address = event.address,
+                                    onClick = {
+                                        actions.selectEvent(
+                                            event.latitude.toDouble(),
+                                            event.longitude.toDouble()
+                                        )
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text (
-                text = "Eventi:",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            if (state.events.isEmpty()) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(15.dp)
+            ) {
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
+                        .height(360.dp)
                 ) {
-                    Text(
-                        text = "Non ci sono eventi in programma",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    Box {
+                        EventsMap(state.events, state.selectedEvent, coordinates)
+                        IconButton(
+                            onClick = { getLocationOrRequestPermission() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            enabled = !loadingLocation
+                        ) {
+                            Icon(Icons.Filled.GpsFixed, "Current location")
+                        }
+                    }
                 }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(state.events) { event ->
-                        EventCard(
-                            title = event.title,
-                            address = event.address,
-                            onClick = {
-                                actions.selectEvent(event.latitude.toDouble(), event.longitude.toDouble())
-                            }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Eventi:",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                if (state.events.isEmpty()) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth().padding(10.dp)
+                    ) {
+                        Text(
+                            text = "Non ci sono eventi in programma",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(state.events) { event ->
+                            EventCard(
+                                title = event.title,
+                                address = event.address,
+                                onClick = {
+                                    actions.selectEvent(
+                                        event.latitude.toDouble(),
+                                        event.longitude.toDouble()
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
