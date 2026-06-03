@@ -105,6 +105,16 @@ fun ProfileScreen(
         )
     }
 
+    if (state.showLevelUpDialog) {
+        LevelUpDialog(
+            oldLevel = state.previousLevel,
+            newLevel = state.level,
+            pointsPerEvent = 10,
+            pointsPerLevel = 30,
+            onDismiss = actions.dismissLevelUpDialog
+        )
+    }
+
     Scaffold(
         topBar = { TopBar(navController, "Il mio profilo") },
         bottomBar = { BottomBar(navController) },
@@ -220,14 +230,14 @@ private fun UserInformationCard(
                 ) {
                     Icon(Icons.Filled.EmojiEvents, contentDescription = null)
                     Text(
-                        text = "Livello 0",
+                        text = "Livello ${state.level}",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
                 AssistChip(
                     onClick = {},
-                    label = { Text("0 punti") },
+                    label = { Text("${state.points} punti") },
                     leadingIcon = {
                         Icon(
                             Icons.Filled.Star,
@@ -240,7 +250,12 @@ private fun UserInformationCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
+            val progress = if (state.nextLevelPoints > 0)
+                state.points.toFloat() / state.nextLevelPoints.toFloat()
+            else 0f
+
             LinearProgressIndicator(
+                progress = { progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
@@ -254,7 +269,7 @@ private fun UserInformationCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Prossimo livello", style = MaterialTheme.typography.labelSmall)
-                Text("100 punti", style = MaterialTheme.typography.labelSmall)
+                Text("${state.nextLevelPoints}", style = MaterialTheme.typography.labelSmall)
             }
         }
     }
@@ -318,7 +333,7 @@ private fun UserInformationCard(
                         StatCard(
                             modifier = Modifier.weight(1f),
                             icon = { Icon(Icons.Filled.Star, contentDescription = null) },
-                            value = "0",
+                            value = state.level.toString(),
                             label = "Livello Raggiunto"
                         )
                     }
@@ -494,6 +509,77 @@ private fun PictureSelectionDialog(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text("Scegli foto")
             }
+        }
+    )
+}
+
+@Composable
+fun LevelUpDialog(
+    oldLevel: Int,
+    newLevel: Int,
+    pointsPerEvent: Int,
+    pointsPerLevel: Int,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Filled.EmojiEvents,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+                Text(
+                    text = "Complimenti!",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Hai raggiunto il livello $newLevel",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+
+                if (oldLevel > 0) {
+                    Text(
+                        text = "Sei passato dal livello $oldLevel al livello $newLevel",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Clicca per continuare!")
+            }
+        },
+        icon = {
+            Icon(
+                Icons.Filled.Star,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.secondary
+            )
         }
     )
 }

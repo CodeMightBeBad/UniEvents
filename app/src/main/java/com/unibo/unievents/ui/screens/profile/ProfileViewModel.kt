@@ -17,6 +17,13 @@ data class ProfileState(
     val oldPassword: String = "",
     val newPassword: String = "",
 
+    val points: Int = 0,
+    val level: Int = 0,
+    val nextLevelPoints: Int = 0,
+
+    val showLevelUpDialog: Boolean = false,
+    val previousLevel: Int = 0,
+
     val createdEvents: Int = 0,
     val joinedEvents: Int = 0,
     val friends: Int = 0,
@@ -30,10 +37,17 @@ data class ProfileActions(
     val updatePassword: (String) -> Unit,
     val updateNewPassword: (String) -> Unit,
     val toggleEdit: () -> Unit,
-    val updateProfilePicture: (Bitmap) -> Unit
+    val updateProfilePicture: (Bitmap) -> Unit,
+    val dismissLevelUpDialog: () -> Unit
 )
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
+
+    companion object {
+        private const val POINTS_PER_EVENT = 10
+        private const val POINTS_PER_LEVEL = 30
+    }
+
     private val _state = MutableStateFlow(ProfileState())
     val state = _state.asStateFlow()
 
@@ -52,6 +66,9 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
                 val imageBytes = bitmapToByteArray(state.value.profilePicture!!)
                 repository.uploadProfilePicture(imageBytes)
             }
+        },
+        dismissLevelUpDialog = {
+            _state.update { it.copy(showLevelUpDialog = false) }
         }
     )
 
@@ -69,12 +86,27 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
             val joinedEvents = repository.getJoinedEvents().size
             val friends = repository.getFriends().size
 
+            val points = joinedEvents * POINTS_PER_EVENT
+            val (newLevel, nextLevelPoints) = calculateLevel(points)
+
+            val savedLevel = userInfo.score
+            val didLevelUp = newLevel > savedLevel
+
+            if (newLevel != savedLevel) {
+                repository.updateUserInformation(score = newLevel)
+            }
+
             _state.update { it.copy(
                 email = userInfo.email,
                 badgeNumber = userInfo.badgeNumber,
                 createdEvents = createdEvents,
                 joinedEvents = joinedEvents,
                 friends = friends,
+                points = points,
+                level = newLevel,
+                nextLevelPoints = nextLevelPoints,
+                showLevelUpDialog = didLevelUp,
+                previousLevel = savedLevel,
                 loading = false
             )}
 
@@ -84,5 +116,11 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
                 loadingImage = false
             )}
         }
+    }
+
+    private fun calculateLevel(points: Int): Pair<Int, Int> {
+        val level = points / POINTS_PER_LEVEL
+        val nextLevelPoints = (level + 1) * POINTS_PER_LEVEL
+        return Pair(level, nextLevelPoints)
     }
 }
