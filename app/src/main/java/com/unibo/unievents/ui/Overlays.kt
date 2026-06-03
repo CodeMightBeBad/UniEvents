@@ -1,5 +1,9 @@
 package com.unibo.unievents.ui
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -10,79 +14,52 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-fun LocationDisabledAlert(
-    show: Boolean,
-    onAction: () -> Unit,
-    onHide: () -> Unit
-) {
-    if (show) {
-        AlertDialog(
-            title = { Text("Location disabled") },
-            text = { Text("Location must be enabled to get your coordinates in the app.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onAction()
-                    onHide()
-                }) {
-                    Text("Enable")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onHide) {
-                    Text("Dismiss")
-                }
-            },
-            onDismissRequest = onHide
-        )
-    }
-}
-
-@Composable
 fun PermissionDeniedAlert(
-    show: Boolean,
     onAction: () -> Unit,
-    onHide: () -> Unit
+    onDismiss: () -> Unit,
+    title: @Composable (() -> Unit),
+    text: @Composable (() -> Unit)
 ) {
-    if (show) {
-        AlertDialog(
-            title = { Text("Location permission denied") },
-            text = { Text("Location permission is required to get your coordinates in the app.") },
-            confirmButton = {
-                TextButton(onClick = {
+    AlertDialog(
+        title = title,
+        text = text,
+        confirmButton = {
+            TextButton(
+                onClick = {
                     onAction()
-                    onHide()
-                }) {
-                    Text("Grant")
+                    onDismiss()
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = onHide) {
-                    Text("Dismiss")
-                }
-            },
-            onDismissRequest = onHide
-        )
-    }
+            ) {
+                Text("Concedi")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annulla")
+            }
+        },
+        onDismissRequest = onDismiss
+
+    )
 }
 
 @Composable
 fun PermissionPermanentlyDeniedSnackbar(
     snackbarHostState: SnackbarHostState,
-    show: Boolean,
     onAction: () -> Unit,
-    onHide: () -> Unit
+    onHide: () -> Unit,
+    message: String
 ) {
-    if (show) {
-        LaunchedEffect(snackbarHostState) {
-            val res = snackbarHostState.showSnackbar(
-                "Location permission is required.",
-                "Go to Settings",
-                duration = SnackbarDuration.Long
-            )
-            if (res == SnackbarResult.ActionPerformed) {
-                onAction()
-            }
-            onHide()
+    LaunchedEffect(snackbarHostState) {
+        val res = snackbarHostState.showSnackbar(
+            message,
+            "Vai alle impostazioni",
+            duration = SnackbarDuration.Long
+        )
+
+        if (res == SnackbarResult.ActionPerformed) {
+            onAction()
         }
+        onHide()
     }
 }
