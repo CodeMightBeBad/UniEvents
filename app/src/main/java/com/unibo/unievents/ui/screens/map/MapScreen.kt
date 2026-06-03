@@ -23,9 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +45,8 @@ import androidx.preference.PreferenceManager
 import com.unibo.unievents.data.Coordinates
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.LocationService
+import com.unibo.unievents.ui.PermissionDeniedAlert
+import com.unibo.unievents.ui.PermissionPermanentlyDeniedSnackbar
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
 import com.unibo.unievents.utils.PermissionStatus
@@ -58,8 +58,6 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 @Composable
 fun MapScreen(
@@ -123,24 +121,28 @@ fun MapScreen(
     if (showPermissionDeniedAlert) {
         PermissionDeniedAlert(
             onAction = { locationPermissions.launchPermissionRequest() },
-            onDismiss = { showPermissionDeniedAlert }
+            onDismiss = { showPermissionDeniedAlert = false },
+            title = { Text("Accesso alla posizione negato") },
+            text = { Text("L'accesso alla posizione deve essere concesso per poter ricavare la tua posizione attuale") }
         )
     }
 
-    PermissionPermanentlyDeniedSnackbar(
-        snackbarHostState,
-        show = showPermissionSnackbar,
-        onAction = {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", ctx.packageName, null)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            if (intent.resolveActivity(ctx.packageManager) != null) {
-                ctx.startActivity(intent)
-            }
-        },
-        onHide = { showPermissionSnackbar = false }
-    )
+    if (showPermissionSnackbar) {
+        PermissionPermanentlyDeniedSnackbar(
+            snackbarHostState = snackbarHostState,
+            onAction = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", ctx.packageName, null)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                if (intent.resolveActivity(ctx.packageManager) != null) {
+                    ctx.startActivity(intent)
+                }
+            },
+            onHide = { showPermissionSnackbar = false },
+            message = "Attiva i permessi per la posizione"
+        )
+    }
 
     Scaffold(
         topBar = { TopBar(navController, "Mappa eventi") },
@@ -338,54 +340,4 @@ fun LocationDisabledAlert(
         },
         onDismissRequest = onDismiss
     )
-}
-
-@Composable
-fun PermissionDeniedAlert(
-    onAction: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        title = { Text("Accesso alla posizione negato") },
-        text = { Text("L'accesso alla posizione deve essere concesso per poter ricavare la tua posizione attuale") },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onAction()
-                    onDismiss()
-                }
-            ) {
-                Text("Concedi")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Annulla")
-            }
-        },
-        onDismissRequest = onDismiss
-
-    )
-}
-
-@Composable
-fun PermissionPermanentlyDeniedSnackbar(
-    snackbarHostState: SnackbarHostState,
-    show: Boolean,
-    onAction: () -> Unit,
-    onHide: () -> Unit
-) {
-    if (show) {
-        LaunchedEffect(snackbarHostState) {
-            val res = snackbarHostState.showSnackbar(
-                "Location permission is required.",
-                "Go to Settings",
-                duration = SnackbarDuration.Long
-            )
-            if (res == SnackbarResult.ActionPerformed) {
-                onAction()
-            }
-            onHide()
-        }
-    }
 }
