@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 data class MapState (
     val events: List<Event> = emptyList(),
@@ -38,7 +41,10 @@ class MapViewModel(private val repository: EventRepository): ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true) }
 
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
             val events = repository.getApprovedEvents()
+                .filter { it.date >= today }
+                .sortedWith(compareBy({ it.date }, { it.time }))
 
             _state.update { it.copy(
                 events = events,
