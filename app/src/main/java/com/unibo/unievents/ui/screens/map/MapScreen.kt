@@ -55,6 +55,8 @@ import com.unibo.unievents.ui.PermissionDeniedAlert
 import com.unibo.unievents.ui.PermissionPermanentlyDeniedSnackbar
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
+import com.unibo.unievents.ui.composables.parseItalianAddress
+import com.unibo.unievents.ui.screens.research.formatEventDate
 import com.unibo.unievents.utils.PermissionStatus
 import com.unibo.unievents.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
@@ -212,8 +214,7 @@ fun MapScreen(
                         ) {
                             items(state.events) { event ->
                                 EventCard(
-                                    title = event.title,
-                                    address = event.address,
+                                    event = event,
                                     onClick = {
                                         actions.selectEvent(
                                             event.latitude.toDouble(),
@@ -278,8 +279,7 @@ fun MapScreen(
                     ) {
                         items(state.events) { event ->
                             EventCard(
-                                title = event.title,
-                                address = event.address,
+                                event = event,
                                 onClick = {
                                     actions.selectEvent(
                                         event.latitude.toDouble(),
@@ -360,10 +360,12 @@ fun EventsMap(
 
 @Composable
 fun EventCard(
-    title: String,
-    address: String,
+    event: Event,
     onClick: () -> Unit
 ) {
+    val (city, street) = remember(event.address) {
+        parseItalianAddress(event.address)
+    }
     Card (
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -377,7 +379,7 @@ fun EventCard(
                 .padding(10.dp)
         ) {
             Text(
-                text = title,
+                text = event.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -385,7 +387,14 @@ fun EventCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = address,
+                text = "$city, $street",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "${formatEventDate(event.date)} alle ore ${event.time}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
