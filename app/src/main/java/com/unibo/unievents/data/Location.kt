@@ -26,7 +26,7 @@ class LocationService(private val ctx: Context) {
     val isLoading = _isLoading.asStateFlow()
 
     suspend fun getCurrentLocation(usePreciseLocation: Boolean = true): Coordinates? {
-        _coordinates.value = try {
+        try {
             _isLoading.value = true
 
             val locationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -38,11 +38,20 @@ class LocationService(private val ctx: Context) {
             ) == PackageManager.PERMISSION_GRANTED
             if (!permissionGranted) throw SecurityException("Location permission not granted")
 
-            fusedLocationClient.getCurrentLocation(
+            val lastKnown = fusedLocationClient.lastLocation.await()
+            if (lastKnown != null) {
+                _coordinates.value = lastKnown.toCoordinates()
+                _isLoading.value = false
+            }
+
+            val fresh = fusedLocationClient.getCurrentLocation(
                 if (usePreciseLocation) Priority.PRIORITY_HIGH_ACCURACY
                 else Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                 CancellationTokenSource().token
-            ).await()?.toCoordinates()
+            ).await()
+
+            if (fresh != null) _coordinates.value = fresh.toCoordinates()
+
         } finally {
             _isLoading.value = false
         }
