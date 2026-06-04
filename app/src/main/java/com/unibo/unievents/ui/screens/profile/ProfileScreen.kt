@@ -310,7 +310,7 @@ private fun UserInformationCard(
                             modifier = Modifier.weight(1f),
                             icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = null) },
                             value = state.joinedEvents.toString(),
-                            label = "Eventi Partecipati"
+                            label = "Eventi a cui partecipo"
                         )
                         StatCard(
                             modifier = Modifier.weight(1f),
