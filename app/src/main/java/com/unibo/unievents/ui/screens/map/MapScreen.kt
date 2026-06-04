@@ -175,7 +175,10 @@ fun MapScreen(
                     Box {
                         EventsMap(state.events, state.selectedEvent, coordinates)
                         IconButton(
-                            onClick = { getLocationOrRequestPermission() },
+                            onClick = {
+                                actions.clearSelectedEvent()
+                                getLocationOrRequestPermission()
+                            },
                             colors = IconButtonDefaults.iconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -242,7 +245,10 @@ fun MapScreen(
                     Box {
                         EventsMap(state.events, state.selectedEvent, coordinates)
                         IconButton(
-                            onClick = { getLocationOrRequestPermission() },
+                            onClick = {
+                                actions.clearSelectedEvent()
+                                getLocationOrRequestPermission()
+                            },
                             colors = IconButtonDefaults.iconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer

@@ -20,7 +20,8 @@ data class MapState (
 )
 
 data class MapActions (
-    val selectEvent: (Double, Double) -> Unit
+    val selectEvent: (Double, Double) -> Unit,
+    val clearSelectedEvent: () -> Unit
 )
 
 class MapViewModel(private val repository: EventRepository): ViewModel() {
@@ -30,6 +31,9 @@ class MapViewModel(private val repository: EventRepository): ViewModel() {
     val actions = MapActions(
         selectEvent = { lat, long ->
             _state.update { it.copy(selectedEvent = Pair(lat, long)) }
+        },
+        clearSelectedEvent = {
+            _state.update { it.copy(selectedEvent = null) }
         }
     )
 
