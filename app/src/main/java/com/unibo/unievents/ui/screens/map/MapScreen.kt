@@ -221,9 +221,10 @@ fun MapScreen(
                                     onClick = {
                                         actions.selectEvent(
                                             event.latitude.toDouble(),
-                                            event.longitude.toDouble()
+                                            event.longitude.toDouble(),
                                         )
-                                    }
+                                    },
+                                    enabled = !loadingLocation
                                 )
                             }
                         }
@@ -291,7 +292,8 @@ fun MapScreen(
                                         event.latitude.toDouble(),
                                         event.longitude.toDouble()
                                     )
-                                }
+                                },
+                                enabled = !loadingLocation
                             )
                         }
                     }
@@ -351,12 +353,17 @@ fun EventsMap(
                 mapView.overlays.add(marker)
             }
 
-            if (selectedEvent != null && selectedEvent != lastSelection) {
-                mapView.controller.animateTo(GeoPoint(selectedEvent.first, selectedEvent.second))
-                lastSelection = selectedEvent
-            } else if (userLocation != null && userLocation != lastUserLocation) {
-                mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
-                lastUserLocation = userLocation
+            if (selectedEvent != null) {
+                if (selectedEvent != lastSelection) {
+                    mapView.controller.animateTo(GeoPoint(selectedEvent.first, selectedEvent.second))
+                    lastSelection = selectedEvent
+                }
+            } else {
+                lastSelection = null
+                if (userLocation != null && userLocation != lastUserLocation) {
+                    mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
+                    lastUserLocation = userLocation
+                }
             }
 
             mapView.invalidate()
@@ -367,7 +374,8 @@ fun EventsMap(
 @Composable
 fun EventCard(
     event: Event,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean
 ) {
     val (city, street) = remember(event.address) {
         parseItalianAddress(event.address)
@@ -377,7 +385,8 @@ fun EventCard(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ),
-        onClick = onClick
+        onClick = onClick,
+        enabled = enabled
     ) {
         Column(
             modifier = Modifier
