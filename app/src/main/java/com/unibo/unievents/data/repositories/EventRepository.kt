@@ -9,11 +9,6 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.storage.storage
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.parameter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.UUID
@@ -23,16 +18,10 @@ data class EventId (
     @SerialName("id") val id: Int
 )
 
-@Serializable
-data class EventParticipants (
-    @SerialName("user_id") val userID: String,
-    @SerialName("event_id") val eventID: Int
-)
-
-class EventRepository(private val supabase: SupabaseClient, private val httpClient: HttpClient) {
+class EventRepository(private val supabase: SupabaseClient) {
     suspend fun getApprovedEvents(): List<Event> {
         return supabase.postgrest["events"]
-            .select(columns = Columns.raw("*, approved_events!inner(id)"))
+            .select(columns = Columns.raw("*, approved_events!inner(id), participations(count)"))
             .decodeList<Event>()
     }
 
@@ -52,26 +41,6 @@ class EventRepository(private val supabase: SupabaseClient, private val httpClie
             .insert(EventId(event.id))
     }
 
-    suspend fun createEvent(event: EventInsert): Result<Unit> {
-        return try {
-            supabase.from("events").insert(event)
-
-            Result.success(Unit)
-        } catch (_: RestException) {
-            Result.failure(Exception("Database error"))
-        } catch (_: HttpRequestException) {
-            Result.failure(Exception("Network error"))
-        }
-    }
-
-    suspend fun getPeopleCount(event: Event): Int {
-        return supabase.from("participations").select {
-            filter {
-                eq("event_id", event.id)
-            }
-        }.decodeList<EventParticipation>().count()
-    }
-
     private suspend fun uploadPhoto(photoBytes: ByteArray): String {
         val fileName = "${UUID.randomUUID()}.jpg"
         supabase.storage.from("event-photos").upload(fileName, photoBytes)
@@ -88,27 +57,6 @@ class EventRepository(private val supabase: SupabaseClient, private val httpClie
         Result.failure(Exception("Database error: ${e.message}"))
         } catch (_: HttpRequestException) {
             Result.failure(Exception("Network error"))
-        }
-    }
-
-    suspend fun getCoordinatesFromAddress(address: String): Pair<Double, Double>? {
-        return try {
-            val encoded = java.net.URLEncoder.encode(address, "UTF-8")
-            val response = httpClient.get ("https://nominatim.openstreetmap.org/search") {
-                parameter("q", address)
-                parameter("format", "json")
-                parameter("limit", "1")
-                header("User-Agent", "UniEventsApp/1.0")
-            }.body<String>()
-
-            val json = org.json.JSONArray(response)
-            if (json.length() > 0) {
-                val obj = json.getJSONObject(0)
-                Pair(obj.getDouble("lat"), obj.getDouble("lon"))
-            } else null
-        } catch (e: Exception) {
-            android.util.Log.e("MapDebug", "Geocoding error per '$address': ${e.message}", e)
-            null
         }
     }
 }

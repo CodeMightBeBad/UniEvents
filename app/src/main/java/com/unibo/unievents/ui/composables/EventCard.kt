@@ -52,6 +52,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+
+import androidx.compose.foundation.BorderStroke
 
 @Composable
 fun EventCard(
@@ -92,6 +96,38 @@ fun EventCard(
                         fontSize = 20.sp
                     )
 
+                    if (event.friendsParticipating) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        AssistChip(
+                            onClick = { },
+                            label = { 
+                                Text(
+                                    "Un amico sta partecipando",
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ) 
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.tertiary
+                                )
+                            },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                            ),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.tertiary
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(24.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -118,10 +154,18 @@ fun EventCard(
 
                     Spacer(modifier = Modifier.height(2.dp))
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.PeopleAlt, contentDescription = "Partecipants", modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = event.maxParticipants.toString())
+                    if (event.maxParticipants != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.PeopleAlt, contentDescription = "Participants", modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("${event.currentParticipants}/${event.maxParticipants}")
+                        }
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.PeopleAlt, contentDescription = "Participants", modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("${event.currentParticipants}")
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -254,7 +298,13 @@ fun EventDetailSheet(
 
                 DetailRow(Icons.Default.LocationOn, street)
                 DetailRow(Icons.Filled.Schedule, "${event.date} alle ore ${event.time}")
-                DetailRow(Icons.Filled.PeopleAlt, "0 / ${event.maxParticipants ?: 30} partecipanti")
+                
+                val participantsText = if (event.maxParticipants != null) {
+                    "${event.currentParticipants} / ${event.maxParticipants} partecipanti"
+                } else {
+                    "${event.currentParticipants} partecipanti"
+                }
+                DetailRow(Icons.Filled.PeopleAlt, participantsText)
 
                 Text(text = "Descrizione", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                 Text(

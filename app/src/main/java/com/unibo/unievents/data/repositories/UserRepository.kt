@@ -2,7 +2,6 @@ package com.unibo.unievents.data.repositories
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.data.User
 import io.github.jan.supabase.SupabaseClient
@@ -12,8 +11,6 @@ import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import io.ktor.client.call.body
-import io.ktor.client.statement.HttpResponse
 
 @Serializable
 data class EventParticipation (
@@ -127,7 +124,9 @@ class UserRepository(private val supabase: SupabaseClient) {
     suspend fun getOwnEvents(): List<Event> {
         val user = getCurrentUser().id
 
-        return supabase.from("events").select {
+        return supabase.from("events").select(
+            columns = Columns.raw("*, participations(count)")
+        ) {
             filter {
                 eq("created_by", user)
             }
@@ -138,7 +137,7 @@ class UserRepository(private val supabase: SupabaseClient) {
         val user = getCurrentUser().id
 
         return supabase.from("participations").select(
-            columns = Columns.raw("*, ...events!event_id!inner(*)")
+            columns = Columns.raw("*, ...events!event_id!inner(*, participations(count))")
         ) {
             filter {
                 eq("user_id", user)
@@ -249,5 +248,19 @@ class UserRepository(private val supabase: SupabaseClient) {
                 eq("pending", false)
             }
         }.decodeList<FriendsTable>().isEmpty()
+    }
+
+    suspend fun getFriendsParticipations(eventIDs: List<Int>): List<Int> {
+        val friends = getFriends().map { it.id }
+        if (friends.isEmpty()) return emptyList()
+
+        val participations = supabase.from("participations").select {
+            filter {
+                isIn("user_id", friends)
+                isIn("event_id", eventIDs)
+            }
+        }.decodeList<EventParticipation>()
+
+        return participations.map { it.eventID }.distinct()
     }
 }

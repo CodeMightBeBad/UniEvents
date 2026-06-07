@@ -403,6 +403,17 @@ fun EventCard(
                 text = "${formatEventDate(event.date)} alle ore ${event.time}",
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = if (event.maxParticipants != null) {
+                    "Partecipanti: ${event.currentParticipants}/${event.maxParticipants}"
+                } else {
+                    "Partecipanti: ${event.currentParticipants}"
+                },
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

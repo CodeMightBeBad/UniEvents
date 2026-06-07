@@ -16,7 +16,16 @@ data class Event(
     @SerialName("longitude") val longitude: String,
     @SerialName("latitude") val latitude: String,
     @SerialName("max_participants") val maxParticipants: Int?,
-    @SerialName("photos") val photos: List<String> = emptyList()
+    @SerialName("photos") val photos: List<String> = emptyList(),
+    @SerialName("participations") val participations: List<ParticipantCount> = emptyList(),
+    val friendsParticipating: Boolean = false
+) {
+    val currentParticipants: Int get() = participations.firstOrNull()?.count ?: 0
+}
+
+@Serializable
+data class ParticipantCount(
+    @SerialName("count") val count: Int
 )
 
 // Specifically created to handle inserts, no ID field

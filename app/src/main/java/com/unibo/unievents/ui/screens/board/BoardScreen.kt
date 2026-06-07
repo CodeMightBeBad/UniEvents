@@ -162,7 +162,21 @@ fun EventCard(
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
-                                text = event.maxParticipants.toString()
+                                text = "${event.currentParticipants}/${event.maxParticipants}"
+                            )
+                        }
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.PeopleAlt,
+                                contentDescription = "Partecipants",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "${event.currentParticipants}"
                             )
                         }
                     }

@@ -246,7 +246,12 @@ fun EventCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = event.maxParticipants.toString())
+                        val participantsText = if (event.maxParticipants != null) {
+                            "${event.currentParticipants}/${event.maxParticipants}"
+                        } else {
+                            "${event.currentParticipants}"
+                        }
+                        Text(text = participantsText)
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))

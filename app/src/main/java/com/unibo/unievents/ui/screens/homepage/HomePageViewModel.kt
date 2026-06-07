@@ -89,10 +89,21 @@ class HomePageViewModel(
             }
 
             val joinedEventsList = userRepo.getJoinedEvents()
+            
+            val eventIDs = eventList.map { it.id }
+            val friendsParticipatingIDs = if (eventIDs.isNotEmpty()) {
+                userRepo.getFriendsParticipations(eventIDs)
+            } else {
+                emptyList()
+            }
+
+            val finalEventList = eventList.map { event ->
+                event.copy(friendsParticipating = friendsParticipatingIDs.contains(event.id))
+            }
 
             _state.update {
                 it.copy(
-                    events = eventList,
+                    events = finalEventList,
                     joinedEvents = joinedEventsList,
                     loading = false
                 )
