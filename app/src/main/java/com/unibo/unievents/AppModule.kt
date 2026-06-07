@@ -61,7 +61,7 @@ val AppModule = module {
     single { MapRepository(get()) }
 
     single { AuthRepository(get()) }
-    single { EventRepository(get(), get()) }
+    single { EventRepository(get()) }
     single { UserRepository(get()) }
 
     viewModel { RegistrationViewModel(get()) }
