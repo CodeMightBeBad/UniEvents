@@ -111,6 +111,7 @@ fun RegistrationScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email
                         ),
+                        supportingText = { Text("Il dominio della mail deve essere studio.unibo.it.") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -127,6 +128,7 @@ fun RegistrationScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         ),
+                        supportingText = { Text("La matricola deve essere composta da 10 numeri.") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -151,6 +153,7 @@ fun RegistrationScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password
                         ),
+                        supportingText = { Text("Almeno 8 caratteri, una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale.") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -204,7 +207,7 @@ fun RegistrationScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
