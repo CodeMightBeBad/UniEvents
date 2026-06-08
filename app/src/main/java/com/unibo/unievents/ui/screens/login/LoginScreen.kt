@@ -204,18 +204,7 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            TextButton(
-                onClick = { }
-            ) {
-                Text(
-                    text = "Esplora eventi senza accedere →",
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
