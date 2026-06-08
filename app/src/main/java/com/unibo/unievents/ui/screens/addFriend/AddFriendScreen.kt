@@ -44,7 +44,7 @@ fun AddFriendScreen(
     navController: NavHostController
 ) {
     Scaffold(
-        topBar = { TopBar(navController, "Add friend") }
+        topBar = { TopBar(navController, "Aggiungi amico") }
     ) { innerPadding ->
         Column(
             modifier = Modifier

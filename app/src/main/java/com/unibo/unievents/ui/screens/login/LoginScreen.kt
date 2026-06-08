@@ -191,16 +191,6 @@ fun LoginScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    TextButton(
-                        onClick = { }
-                    ) {
-                        Text(
-                            text = "Password dimenticata?",
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
                 }
             }
 
