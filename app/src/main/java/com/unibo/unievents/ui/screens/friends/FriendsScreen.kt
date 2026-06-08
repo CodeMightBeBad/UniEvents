@@ -49,7 +49,7 @@ fun FriendsScreen(
     navController: NavHostController
 ) {
     Scaffold(
-        topBar = { TopBar(navController, "Friends") },
+        topBar = { TopBar(navController, "Amici") },
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate(NavigationRoute.AddFriend) }) {
                 Icon(Icons.Filled.Add, "Add friend")
