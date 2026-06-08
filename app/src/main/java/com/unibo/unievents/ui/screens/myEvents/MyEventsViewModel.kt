@@ -17,8 +17,8 @@ data class MyEventsState(
     val createdEvents: List<Event> = emptyList(),
     val joinedEvents: List<Event> = emptyList(),
     val loading: Boolean = false,
-    val isCreatedExpanded: Boolean = false,
-    val isJoinedExpanded: Boolean = false
+    val isCreatedExpanded: Boolean = true,
+    val isJoinedExpanded: Boolean = true
 )
 
 data class MyEventsActions(
