@@ -66,6 +66,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.infowindow.InfoWindow
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
@@ -331,6 +332,17 @@ fun EventsMap(
 
                 controller.setZoom(17.0)
 
+                overlays.add(org.osmdroid.views.overlay.MapEventsOverlay(
+                    object : org.osmdroid.events.MapEventsReceiver {
+                        override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                            InfoWindow.closeAllInfoWindowsOn(this@apply)
+                            invalidate()
+                            return true
+                        }
+                        override fun longPressHelper(p: GeoPoint?) = false
+                    }
+                ))
+
                 if (selectedEvent != null) {
                     controller.setCenter(GeoPoint(selectedEvent.first, selectedEvent.second))
                     lastSelection = selectedEvent
@@ -346,8 +358,11 @@ fun EventsMap(
             mapView.overlays.removeAll { it is Marker }
 
             events.forEach { event ->
+                val (city, street) = parseItalianAddress(event.address)
                 val marker = Marker(mapView).apply {
                     position = GeoPoint(event.latitude.toDouble(), event.longitude.toDouble())
+                    title = event.title
+                    snippet = "$city, $street"
                 }
 
                 mapView.overlays.add(marker)
