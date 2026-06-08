@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -246,6 +247,7 @@ fun MapScreen(
                 ) {
                     Box {
                         EventsMap(state.events, state.selectedEvent, coordinates)
+
                         IconButton(
                             onClick = {
                                 actions.clearSelectedEvent()
@@ -257,7 +259,11 @@ fun MapScreen(
                             ),
                             enabled = !loadingLocation
                         ) {
-                            Icon(Icons.Filled.GpsFixed, "Current location")
+                            if (loadingLocation) {
+                                CircularProgressIndicator()
+                            } else {
+                                Icon(Icons.Filled.GpsFixed, "Current location")
+                            }
                         }
                     }
                 }
@@ -372,6 +378,7 @@ fun EventsMap(
                 if (selectedEvent != lastSelection) {
                     mapView.controller.animateTo(GeoPoint(selectedEvent.first, selectedEvent.second))
                     lastSelection = selectedEvent
+                    lastUserLocation = null
                 }
             } else {
                 lastSelection = null
