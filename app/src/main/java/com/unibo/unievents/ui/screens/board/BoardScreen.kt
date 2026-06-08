@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PeopleAlt
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
@@ -42,6 +43,7 @@ import androidx.navigation.NavHostController
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.ui.composables.BottomBar
 import com.unibo.unievents.ui.composables.TopBar
+import com.unibo.unievents.ui.composables.parseItalianAddress
 import com.unibo.unievents.ui.screens.research.formatEventDate
 
 @Composable
@@ -114,6 +116,7 @@ fun EventCard(
     delete: () -> Unit,
     approve: () -> Unit
 ) {
+    val (city, street) = parseItalianAddress(event.address)
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -141,7 +144,13 @@ fun EventCard(
                         fontSize = 20.sp
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.LocationOn, contentDescription = "Location", modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(text = city)
+                    }
 
                     Spacer(modifier = Modifier.height(2.dp))
 
@@ -155,7 +164,7 @@ fun EventCard(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = event.address
+                            text = street
                         )
                     }
 
