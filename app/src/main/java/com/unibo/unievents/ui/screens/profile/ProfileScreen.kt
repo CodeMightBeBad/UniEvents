@@ -209,7 +209,7 @@ private fun UserInformationCard(
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text(text = "Modifica Password o Foto Profilo")
+                Text(text = "Modifica Foto Profilo")
             }
         }
         Spacer(modifier = Modifier.height(18.dp))
@@ -401,50 +401,6 @@ private fun EditProfile(
             }
         }
         Spacer(modifier = Modifier.height(18.dp))
-    }
-
-    // Change password card
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Icon(Icons.Filled.Lock, contentDescription = null)
-                    Text(
-                        text = "Cambia Password",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-
-            OutlinedTextField(
-                leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                label = { Text("Password Vecchia") },
-                value = state.oldPassword,
-                onValueChange = actions.updatePassword,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                label = { Text("Password Nuova") },
-                value = state.newPassword,
-                onValueChange = actions.updateNewPassword,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                supportingText = { Text("Almeno 8 caratteri, una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
     }
 }
 
