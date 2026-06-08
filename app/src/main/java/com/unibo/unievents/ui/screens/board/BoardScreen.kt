@@ -70,12 +70,38 @@ fun BoardScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(state.events) {
-                    EventCard(
-                        event = it,
-                        delete = { actions.removeEvent(it) },
-                        approve = { actions.approveEvent(it) }
-                    )
+                if (state.events.isEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp)
+                            ) {
+                                Text(
+                                    text = "Nessun evento da revisionare",
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    items(state.events) {
+                        EventCard(
+                            event = it,
+                            delete = { actions.removeEvent(it) },
+                            approve = { actions.approveEvent(it) }
+                        )
+                    }
                 }
             }
         }
