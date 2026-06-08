@@ -15,6 +15,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kotlin.time.Duration.Companion.milliseconds
 
 data class ResearchState(
     val searchQuery: String = "",
@@ -81,7 +82,7 @@ class ResearchViewModel(
     private fun setupSearchDebounce() {
         viewModelScope.launch {
             searchQueryFlow
-                .debounce(300)
+                .debounce(300.milliseconds)
                 .distinctUntilChanged()
                 .collect { query ->
                     performSearch(query)

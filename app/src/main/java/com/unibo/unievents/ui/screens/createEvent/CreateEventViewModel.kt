@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format.char
+import kotlin.time.Duration.Companion.milliseconds
 
 data class CreateEventState(
     val title: String = "",
@@ -66,7 +67,7 @@ class CreateEventViewModel(
             _state
                 .map { it.address }
                 .distinctUntilChanged()
-                .debounce(1000L)
+                .debounce(1000L.milliseconds)
                 .filter { it.length >= 5 }
                 .collect { address ->
                     fetchSuggestions(address)

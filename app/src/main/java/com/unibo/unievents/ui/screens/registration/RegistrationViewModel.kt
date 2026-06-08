@@ -129,12 +129,4 @@ class RegistrationViewModel(private val repository: AuthRepository) : ViewModel(
         if (!password.any { !it.isLetterOrDigit() }) return "La password deve contenere almeno un carattere speciale"
         return null
     }
-
-
-    fun checkValidity() : Boolean {
-        if (state.value.password != state.value.passwordConfirm) return false
-        if (!state.value.email.endsWith("@studio.unibo.it")) return false
-
-        return true
-    }
 }

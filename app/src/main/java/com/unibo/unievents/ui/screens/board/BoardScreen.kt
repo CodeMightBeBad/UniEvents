@@ -157,7 +157,7 @@ fun EventCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.PeopleAlt,
-                                contentDescription = "Partecipants",
+                                contentDescription = "Participants",
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
@@ -171,7 +171,7 @@ fun EventCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.PeopleAlt,
-                                contentDescription = "Partecipants",
+                                contentDescription = "Participants",
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))

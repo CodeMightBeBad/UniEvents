@@ -22,7 +22,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
 import java.util.Locale
 import java.text.DateFormatSymbols
-import java.util.Calendar
 
 @Composable
 fun DateNavigationBar(

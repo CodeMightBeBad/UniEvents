@@ -110,17 +110,6 @@ class UserRepository(private val supabase: SupabaseClient) {
         }
     }
 
-    suspend fun hasJoined(eventID: Int): Boolean {
-        val user = getCurrentUser().id
-
-        return supabase.from("participations").select {
-            filter {
-                eq("user_id", user)
-                eq("event_id", eventID)
-            }
-        }.decodeList<EventParticipation>().isEmpty()
-    }
-
     suspend fun getOwnEvents(): List<Event> {
         val user = getCurrentUser().id
 

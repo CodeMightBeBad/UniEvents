@@ -23,8 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.unibo.unievents.data.Event
 import com.unibo.unievents.ui.screens.research.formatEventDate
-import kotlinx.datetime.LocalDate
-
 @Composable
 fun CustomEventDropdown(
     label: String,

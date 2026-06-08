@@ -45,7 +45,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.unibo.unievents.ui.NavigationRoute
 import com.unibo.unievents.ui.screens.login.DialogSection
 
 @Composable
