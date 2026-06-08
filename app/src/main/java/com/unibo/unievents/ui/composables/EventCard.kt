@@ -56,6 +56,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 
 import androidx.compose.foundation.BorderStroke
+import com.unibo.unievents.ui.screens.research.formatEventDate
 
 @Composable
 fun EventCard(
@@ -297,7 +298,7 @@ fun EventDetailSheet(
                 }
 
                 DetailRow(Icons.Default.LocationOn, street)
-                DetailRow(Icons.Filled.Schedule, "${event.date} alle ore ${event.time}")
+                DetailRow(Icons.Filled.Schedule, "${formatEventDate(event.date)} alle ore ${event.time}")
                 
                 val participantsText = if (event.maxParticipants != null) {
                     "${event.currentParticipants} / ${event.maxParticipants} partecipanti"
@@ -378,10 +379,12 @@ private fun DetailRow(icon: ImageVector, label: String) {
 }
 
 fun shareEvent(context: Context, event: Event) {
+    val (city, street) = parseItalianAddress(event.address)
     val shareText = buildString {
         appendLine("🎓 ${event.title}")
-        appendLine("📍 ${event.address}")
-        appendLine("📅 ${event.date} alle ${event.time}")
+        appendLine("🏙️ $city")
+        appendLine("📍 $street")
+        appendLine("📅 ${formatEventDate(event.date)} alle ${event.time}")
         appendLine("👥 Max partecipanti: ${event.maxParticipants ?: "illimitati"}")
         appendLine("Descrizione: ${event.description}")
         appendLine("Scopri altri eventi su Uni Events!")
